@@ -2,6 +2,9 @@
 
 ### Wednesday, June 10, 2026, 12:00 noon, CDT `UTC−5:00`
 
+## Upload dataset to Hugging Face
+
+Use the official [`hf`](https://huggingface.co/docs/huggingface_hub/guides/cli) CLI.
 
 > [!TIP]
 > `hf upload-large-folder` does not support `.gitignore`
