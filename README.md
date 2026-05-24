@@ -112,6 +112,9 @@ Ask <img width="12" height="12" alt="claude-logo" src="https://github.com/user-a
 > [!WARNING]
 > This might be the limit of Google Colab where you can only rent a **single** GPU. You may have to move on to GPU clusters at this point. You can't increase per-device-batch, or add more transformer layers, or increase gradient accumilation on a Google Colab NVIDIA A100 which has a limited `40` GB memory.
 
+## Option 2: Train on RunPod
+
+
 ```
 learning rate:  : 5e-6↓
 epochs          : 2
