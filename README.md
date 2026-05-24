@@ -28,7 +28,7 @@ hf upload-large-folder keisuke-miyako/legal-euro-2026-0524 . \
 - Pay-as-you-go or subscription
 
 ### Con
-- Single GPUm no clusters
-- Memory constraints
+- Single GPU, no clusters
+- CUDA availability is a lottery
 - Termination after several minutes of browser inactivity
 - Termination after `7` to `9` hours of activity
