@@ -124,3 +124,13 @@ gpu             : 3↑
 <img width="500" height="auto" alt="training-loss" src="https://github.com/user-attachments/assets/98e36ab6-5c5c-4ad7-8086-45c6fee996ed" />
 
 Ask <img width="12" height="12" alt="claude-logo" src="https://github.com/user-attachments/assets/7f11737c-c2eb-4b6f-a025-a02d12ef998d" /> for advice: [https://claude.ai/share/4a05d25f-7141-4514-a877-146c5d47b263](https://claude.ai/share/4a05d25f-7141-4514-a877-146c5d47b263)
+
+```
+learning rate:  : 5e-6
+epochs          : 3↑
+batch/device    : 8↑
+gpu             : 3↑
+target modules  : dense+
+gradient accum. : 2↑
+warmup          : 0.05↓
+```
