@@ -1,0 +1,41 @@
+{
+	"Ai": {
+		"methods": [
+			"OnModelDownloaded"
+		],
+		"classes": [
+			"_Agent",
+			"_AgentRemote",
+			"_AgentRemoteJudge",
+			"_AgentRemoteNegative",
+			"_AgentRemoteQueryTexts",
+			"_AgentRemoteText",
+			"_AgentRemoteTexts",
+			"Embeddings",
+			"RemoteLLM",
+			"Reranker"
+		]
+	},
+	"Generate": {
+		"methods": [
+			"generate_synthetic_contracts",
+			"generate_synthetic_emails",
+			"generate_synthetic_queries",
+			"generate_synthetic_slides"
+		]
+	},
+	"Prepare": {
+		"methods": [
+			"export_document_gerdalir"
+		]
+	},
+	"Tables": {
+		"tables": [
+			"Document",
+			"Passage",
+			"Query",
+			"Score"
+		]
+	},
+	"trash": {}
+}
