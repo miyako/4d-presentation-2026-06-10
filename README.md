@@ -36,3 +36,6 @@ hf upload-large-folder keisuke-miyako/legal-euro-2026-0524 . \
 ### Example for BGE M3
 
 https://colab.research.google.com/drive/170FXbDOp_V12AuKw81O_QFEUSVa0k_tH?usp=sharing
+
+<img width="500" height="auto" alt="training-loss" src="https://github.com/user-attachments/assets/90a7721a-925a-4b4c-9c11-029286a8b964" />
+
