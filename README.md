@@ -83,3 +83,4 @@ Ask <img width="12" height="12" alt="claude-logo" src="https://github.com/user-a
 - The "spread" widened from `0.12` to `0.20`: presumably good
 - The hierarchy is instact: demonstratively good
 - The overall cosine similarity is depressed: potentially bad
+- Possible **overfitting**: not good
