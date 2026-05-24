@@ -38,9 +38,10 @@ hf upload-large-folder keisuke-miyako/legal-euro-2026-0524 . \
 ### Example for BGE M3
 
 ```
-Effective batch : 4
-Group size      : 8
-Est. steps      : 8672
+learning rate:  : 1e-5
+epochs          : 3
+batch/device    : 4
+gpu             : 1
 ```
 
 https://colab.research.google.com/drive/170FXbDOp_V12AuKw81O_QFEUSVa0k_tH?usp=sharing
@@ -85,12 +86,6 @@ Ask <img width="12" height="12" alt="claude-logo" src="https://github.com/user-a
 
 ### Example for BGE M3 (2nd round)
 
-```
-Effective batch : 4
-Group size      : 8
-Est. steps      : 5781
-```
-
 https://colab.research.google.com/drive/1pXcGt0nIrgcj976-fY6yb4hvuH2xHyvu?usp=sharing
 https://colab.research.google.com/drive/1bDpXaBE2ck4Ajs1xeoD5MMI8M-ZAkS8b?usp=sharing
 
@@ -98,8 +93,12 @@ https://colab.research.google.com/drive/1bDpXaBE2ck4Ajs1xeoD5MMI8M-ZAkS8b?usp=sh
 
 ### Measurements after Training
 
-- set to `8e-6`
-- `2` epochs
+```
+learning rate:  : 8e-6↓
+epochs          : 2↓
+batch/device    : 4
+gpu             : 1
+```
 
 |Relevance|Min|Max|Average|
 |:-:|-:|-:|-:|
@@ -110,11 +109,12 @@ https://colab.research.google.com/drive/1bDpXaBE2ck4Ajs1xeoD5MMI8M-ZAkS8b?usp=sh
 
 Ask <img width="12" height="12" alt="claude-logo" src="https://github.com/user-attachments/assets/7f11737c-c2eb-4b6f-a025-a02d12ef998d" /> for advice: https://claude.ai/share/4bb410a2-fdb4-49d7-bcb7-afa54b63da31
 
-
-
 > [!WARNING]
 > This might be the limit of Google Colab where you can only rent a **single** GPU. You may have to move on to GPU clusters at this point. You can't increase per-device-batch, or add more transformer layers, or increase gradient accumilation on a Google Colab NVIDIA A100 which has a limited `40` GB memory.
 
-
-- set to `5e-6`
-- `3` GPUs
+```
+learning rate:  : 5e-6↓
+epochs          : 2
+batch/device    : 8↑
+gpu             : 3↑
+```
