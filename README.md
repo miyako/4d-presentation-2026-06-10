@@ -35,6 +35,22 @@ hf upload-large-folder keisuke-miyako/legal-euro-2026-0524 . \
 
 https://colab.research.google.com/drive/170FXbDOp_V12AuKw81O_QFEUSVa0k_tH?usp=sharing
 
+#### Dataset Stats
+
+```
+Rows              : 11563
+Positives per row : min=1  max=15  avg=4.2
+Negatives per row : min=1  max=13  avg=3.4
+```
+
+#### Batch Stats
+
+```
+Effective batch : 4
+Group size      : 8
+Est. steps      : 8672
+```
+
 ### Loss & Learning Rate
 
 <img width="500" height="auto" alt="training-loss" src="https://github.com/user-attachments/assets/90a7721a-925a-4b4c-9c11-029286a8b964" />
