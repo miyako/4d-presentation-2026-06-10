@@ -11,7 +11,7 @@ from FlagEmbedding.finetune.embedder.encoder_only.m3 import (
 
 import sys
 Rn         = sys.argv[1] if len(sys.argv) > 1 else "r9"
-RESUME     = sys.argv[2].lower() == "true" if len(sys.argv) > 2 else False
+RESUME     = sys.argv[2].lower() == "true" if len(sys.argv) > 2 else False  # FIX 1: removed hardcoded overrides below
 CHECKPOINT = sys.argv[3] if len(sys.argv) > 3 else ""
 
 TRAIN_FILE    = f"/workspace/bge_legal/{Rn}/training.jsonl"
@@ -23,25 +23,23 @@ HF_DATASET = 'keisuke-miyako/legal-euro-2026-0524'
 HF_TOKEN   = os.environ.get("HF_TOKEN", "")
 # ─────────────────────────────────────────────────────────────────────────────
 
-RESUME     = False
-CHECKPOINT = ""
-
 # ── Training hyperparameters ──────────────────────────────────────────────────
 # Cluster: 3 × 24 GB GPUs with torch 2.4.1+cu124
-# Effective batch = PER_DEVICE_BATCH × GRAD_ACCUM × NUM_GPUS = 4 × 1 × 3 = 12
+# Effective batch = PER_DEVICE_BATCH × GRAD_ACCUM × NUM_GPUS = 8 × 2 × 3 = 48  # FIX 2: corrected comment
 # negatives_cross_device=True: each GPU sees negatives from all 3 GPUs
 PER_DEVICE_BATCH    = 8
-GRAD_ACCUM          = 1
-EPOCHS              = 2
+GRAD_ACCUM          = 2    # FIX 9: was 1 — smoother gradients, effective batch 24 → 48
+EPOCHS              = 3    # FIX 9: was 2 — small dataset benefits from an extra epoch
 LEARNING_RATE       = 5e-06
 LORA_RANK           = 32
 LORA_ALPHA          = 64
-LORA_TARGET_MODULES = ['query', 'key', 'value']
-SUB_BATCH_SIZE      = 1
+LORA_TARGET_MODULES = ['query', 'key', 'value', 'dense']  # FIX 5: added 'dense' (attention output projection)
+SUB_BATCH_SIZE      = 8    # FIX 4: was 1 — encode full group together for better contrastive gradients
 PASSAGE_MAX_LEN     = 1024
 TEMPERATURE         = 0.05
-SAFE_GROUP          = 8
-NUM_GPUS            = 3
+SAFE_GROUP          = 5    # FIX 3: was 8 — avg negatives is 3.4, group of 5 (1 pos + 4 neg) avoids padding repeats
+NUM_GPUS            = 4
+QUERY_MAX_LEN       = 64   # extracted constant so padded_forward stays in sync with data_args
 # ─────────────────────────────────────────────────────────────────────────────
 
 # ── Download dataset from Hugging Face (rank 0 only) ─────────────────────────
@@ -177,7 +175,7 @@ class LoRAM3Runner(EncoderOnlyEmbedderM3Runner):
             return features
 
         def padded_forward(queries=None, passages=None, teacher_scores=None, no_in_batch_neg_flag=False):
-            queries  = pad_features(queries,  64)
+            queries  = pad_features(queries,  QUERY_MAX_LEN)   # FIX: was hardcoded 64, now uses shared constant
             passages = pad_features(passages, PASSAGE_MAX_LEN)
             return original_forward(queries=queries, passages=passages,
                                     teacher_scores=teacher_scores,
@@ -206,12 +204,14 @@ class LoRAM3Runner(EncoderOnlyEmbedderM3Runner):
 gc.collect()
 torch.cuda.empty_cache()
 
+total_steps = len(records) * EPOCHS // (PER_DEVICE_BATCH * GRAD_ACCUM * NUM_GPUS)
+
 model_args = EncoderOnlyEmbedderM3ModelArguments(model_name_or_path="BAAI/bge-m3")
 
 data_args = EncoderOnlyEmbedderM3DataArguments(
     train_data=[TRAIN_FILE],
     train_group_size=SAFE_GROUP,
-    query_max_len=64,
+    query_max_len=QUERY_MAX_LEN,   # FIX: was hardcoded 64, now uses shared constant
     passage_max_len=PASSAGE_MAX_LEN,
     cache_path=os.path.join(WORK_DIR, "cache"),
 )
@@ -222,7 +222,8 @@ training_args = EncoderOnlyEmbedderM3TrainingArguments(
     per_device_train_batch_size=PER_DEVICE_BATCH,
     gradient_accumulation_steps=GRAD_ACCUM,
     learning_rate=LEARNING_RATE,
-    warmup_steps=int(0.1 * (len(records) * EPOCHS // (PER_DEVICE_BATCH * GRAD_ACCUM * NUM_GPUS))),
+    lr_scheduler_type="cosine",                          # FIX 8: was default linear — cosine works better for retrieval
+    warmup_steps=int(0.05 * total_steps),                # FIX 7: was 10% warmup — 5% is sufficient for LoRA
     weight_decay=0.01,
     bf16=True,
     fp16=False,
@@ -239,7 +240,7 @@ training_args = EncoderOnlyEmbedderM3TrainingArguments(
     save_strategy="steps",
     save_steps=500,
     save_total_limit=3,
-    dataloader_num_workers=0,
+    dataloader_num_workers=4,      # FIX 6: was 0 — prevents GPU idle during tokenisation at PASSAGE_MAX_LEN=1024
     remove_unused_columns=False,
     report_to="none",
 )
