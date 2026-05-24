@@ -34,6 +34,7 @@ hf upload-large-folder keisuke-miyako/legal-euro-2026-0524 . \
 ### Example for BGE M3
 
 https://colab.research.google.com/drive/170FXbDOp_V12AuKw81O_QFEUSVa0k_tH?usp=sharing
+https://colab.research.google.com/drive/1XAqhA8Eto-S0IvD22pG9YFIra3tupy6n?usp=sharing
 
 #### Dataset Stats
 
