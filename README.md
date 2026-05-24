@@ -92,7 +92,24 @@ https://colab.research.google.com/drive/1bDpXaBE2ck4Ajs1xeoD5MMI8M-ZAkS8b?usp=sh
 
 <img width="500" height="auto" alt="training-loss" src="https://github.com/user-attachments/assets/2e9d730d-2109-4bf7-b720-1995f7bbb867" />
 
+### Measurements after Training
+
+- set to `8e-6`
+- `2` epochs
+
+|Relevance|Min|Max|Average|
+|:-:|-:|-:|-:|
+|`3`|`0.01`|`0.75`|`0.46`
+|`2`|`0.02`|`0.73`|`0.44`
+|`1`|`0.01`|`0.66`|`0.39`
+|`0`|`-0.00`|`0.62`|`0.26`
+
 Ask <img width="12" height="12" alt="claude-logo" src="https://github.com/user-attachments/assets/7f11737c-c2eb-4b6f-a025-a02d12ef998d" /> for advice: https://claude.ai/share/4bb410a2-fdb4-49d7-bcb7-afa54b63da31
+
+
 
 > [!WARNING]
 > This might be the limit of Google Colab where you can only rent a **single** GPU. You may have to move on to GPU clusters at this point. You can't increase per-device-batch, or add more transformer layers, or increase gradient accumilation on a Google Colab NVIDIA A100 which has a limited `40` GB memory.
+
+
+
