@@ -24,9 +24,13 @@ $event.onTerminate:=Formula:C1597(LOG EVENT:C667(Into 4D debug message:K38:5; ([
 $homeFolder:=Folder:C1567(fk home folder:K87:24).folder(".GGUF")
 var $max_position_embeddings; $batch_size; $parallel; $threads; $batches : Integer
 
-$folder:=$homeFolder.folder("bge-m3")
-$path:="bge-m3-Q8_0.gguf"
-$URL:="keisuke-miyako/bge-m3-gguf-q8_0"
+//$folder:=$homeFolder.folder("bge-m3")
+//$path:="bge-m3-Q8_0.gguf"
+//$URL:="keisuke-miyako/bge-m3-gguf-q8_0"
+
+$folder:=$homeFolder.folder("bge-m3-legal-euro")
+$path:="bge-m3-legal-q8_0.gguf"
+$URL:="keisuke-miyako/bge-m3-legal-euro-r12-gguf"
 
 $pooling:="cls"
 $ubatch_size:=1024  //max_position_embeddings=8194, but for better granularity
