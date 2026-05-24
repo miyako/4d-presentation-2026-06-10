@@ -11,5 +11,6 @@ hf upload-large-folder keisuke-miyako/legal-euro-2026-0524 . \
   --repo-type=dataset \
   --num-workers=10 \
   --exclude "llm/*" \
+  --exclude "reranker/*" \
   --exclude ".DS_Store"
 ```
