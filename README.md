@@ -84,3 +84,5 @@ Ask <img width="12" height="12" alt="claude-logo" src="https://github.com/user-a
 - The hierarchy is instact: demonstratively good
 - The overall cosine similarity is depressed: potentially bad
 - Possible **overfitting**: not good
+
+<img width="500" height="auto" alt="training-loss" src="https://github.com/user-attachments/assets/2e9d730d-2109-4bf7-b720-1995f7bbb867" />
