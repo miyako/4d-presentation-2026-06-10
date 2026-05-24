@@ -32,3 +32,7 @@ hf upload-large-folder keisuke-miyako/legal-euro-2026-0524 . \
 - CUDA availability is a lottery
 - Termination after several minutes of browser inactivity
 - Termination after `7` to `9` hours of activity
+
+### Example
+
+https://colab.research.google.com/drive/170FXbDOp_V12AuKw81O_QFEUSVa0k_tH?usp=sharing
