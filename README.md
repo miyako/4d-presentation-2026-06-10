@@ -37,6 +37,12 @@ hf upload-large-folder keisuke-miyako/legal-euro-2026-0524 . \
 
 ### Example for BGE M3
 
+```
+Effective batch : 4
+Group size      : 8
+Est. steps      : 8672
+```
+
 https://colab.research.google.com/drive/170FXbDOp_V12AuKw81O_QFEUSVa0k_tH?usp=sharing
 https://colab.research.google.com/drive/1XAqhA8Eto-S0IvD22pG9YFIra3tupy6n?usp=sharing
 
@@ -46,14 +52,6 @@ https://colab.research.google.com/drive/1XAqhA8Eto-S0IvD22pG9YFIra3tupy6n?usp=sh
 Rows              : 11563
 Positives per row : min=1  max=15  avg=4.2
 Negatives per row : min=1  max=13  avg=3.4
-```
-
-#### Batch Stats
-
-```
-Effective batch : 4
-Group size      : 8
-Est. steps      : 8672
 ```
 
 ### Measurements before Training
@@ -86,6 +84,12 @@ Ask <img width="12" height="12" alt="claude-logo" src="https://github.com/user-a
 - Possible **overfitting**: not good
 
 ### Example for BGE M3 (2nd round)
+
+```
+Effective batch : 4
+Group size      : 8
+Est. steps      : 5781
+```
 
 https://colab.research.google.com/drive/1pXcGt0nIrgcj976-fY6yb4hvuH2xHyvu?usp=sharing
 https://colab.research.google.com/drive/1bDpXaBE2ck4Ajs1xeoD5MMI8M-ZAkS8b?usp=sharing
