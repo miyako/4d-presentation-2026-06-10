@@ -72,3 +72,12 @@ Ask <img width="12" height="12" alt="claude-logo" src="https://github.com/user-a
 |`0`|`0.21`|`0.63`|`0.40`
 
 ### Measurements after Training
+
+|Relevance|Min|Max|Average|
+|:-:|-:|-:|-:|
+|`3`|`-0.02`|`0.74`|`0.45`
+|`2`|`-0.01`|`0.73`|`0.43`
+|`1`|`-0.01`|`0.66`|`0.38`
+|`0`|`-0.04`|`0.61`|`0.25`
+
+The "spread" widened from `.12` to `0.19`
