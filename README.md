@@ -94,4 +94,4 @@ https://colab.research.google.com/drive/1bDpXaBE2ck4Ajs1xeoD5MMI8M-ZAkS8b?usp=sh
 
 Ask <img width="12" height="12" alt="claude-logo" src="https://github.com/user-attachments/assets/7f11737c-c2eb-4b6f-a025-a02d12ef998d" /> for advice: https://claude.ai/share/4bb410a2-fdb4-49d7-bcb7-afa54b63da31
 
-> This is the limit of Google Colab which only affords a single GPU. You may have to move on to GPU clusters.
+> This might be the limit of Google Colab which only affords a single GPU. You may have to move on to GPU clusters. You can't increase per-device-batch, or add more transformer layers, or increase gradient accumilation on a Google Colab NVIDIA A100 which is fixed at `40` GB.
