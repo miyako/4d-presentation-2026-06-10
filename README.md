@@ -64,4 +64,11 @@ Ask <img width="12" height="12" alt="claude-logo" src="https://github.com/user-a
 
 ### Measurements before Training
 
+|Relevance|Min|Max|Average|
+|:-:|-:|-:|-:|
+|`3`|`0.22`|`0.80`|`0.52`
+|`2`|`0.22`|`0.77`|`0.50`
+|`1`|`0.26`|`0.69`|`0.47`
+|`0`|`0.21`|`0.63`|`0.40`
+
 ### Measurements after Training
