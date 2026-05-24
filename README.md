@@ -24,14 +24,12 @@ hf upload-large-folder keisuke-miyako/legal-euro-2026-0524 . \
 
 - Quick tests on small VM are free
 - Integration with Google Drive
-- High-end GPUs available
 - Pay-as-you-go or subscription
 
 ### Con
 - Single GPU, no clusters
-- CUDA availability is a lottery
-- Termination after several minutes of browser inactivity
-- Termination after `7` to `9` hours of activity
+- Terminate after several minutes of browser inactivity
+- Terminate after `7` to `9` hours of activity (preëmption)
 
 ### Example for BGE M3
 
