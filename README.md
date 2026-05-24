@@ -114,10 +114,12 @@ Ask <img width="12" height="12" alt="claude-logo" src="https://github.com/user-a
 
 ## Option 2: Train on RunPod
 
-
 ```
 learning rate:  : 5e-6↓
 epochs          : 2
 batch/device    : 8↑
 gpu             : 3↑
 ```
+
+<img width="500" height="auto" alt="training-loss" src="https://github.com/user-attachments/assets/98e36ab6-5c5c-4ad7-8086-45c6fee996ed" />
+
