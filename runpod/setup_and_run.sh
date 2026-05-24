@@ -1,6 +1,9 @@
 #!/bin/bash
 set -e
 
+export RUNPOD_API_KEY=rpa_***
+export HF_TOKEN=hf_***
+
 # ── Environment: torch 2.4.1+cu124, CUDA 13.0, Python 3.11 ──────────────────
 # DO NOT install or touch torch or torchvision
 # ─────────────────────────────────────────────────────────────────────────────
