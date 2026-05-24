@@ -56,12 +56,6 @@ Group size      : 8
 Est. steps      : 8672
 ```
 
-### Loss & Learning Rate
-
-<img width="500" height="auto" alt="training-loss" src="https://github.com/user-attachments/assets/90a7721a-925a-4b4c-9c11-029286a8b964" />
-
-Ask <img width="12" height="12" alt="claude-logo" src="https://github.com/user-attachments/assets/7f11737c-c2eb-4b6f-a025-a02d12ef998d" /> for advice: https://claude.ai/share/26f496a3-e877-43fb-b8df-e024557d13ae
-
 ### Measurements before Training
 
 |Relevance|Min|Max|Average|
@@ -70,6 +64,12 @@ Ask <img width="12" height="12" alt="claude-logo" src="https://github.com/user-a
 |`2`|`0.22`|`0.77`|`0.50`
 |`1`|`0.26`|`0.69`|`0.47`
 |`0`|`0.21`|`0.63`|`0.40`
+
+### Loss & Learning Rate
+
+<img width="500" height="auto" alt="training-loss" src="https://github.com/user-attachments/assets/90a7721a-925a-4b4c-9c11-029286a8b964" />
+
+Ask <img width="12" height="12" alt="claude-logo" src="https://github.com/user-attachments/assets/7f11737c-c2eb-4b6f-a025-a02d12ef998d" /> for advice: https://claude.ai/share/26f496a3-e877-43fb-b8df-e024557d13ae
 
 ### Measurements after Training
 
