@@ -15,7 +15,7 @@ hf upload-large-folder keisuke-miyako/legal-euro-2026-0524 . \
   --num-workers=10 \
   --exclude "llm/*" \
   --exclude "reranker/*" \
-  --exclude ".DS_Store"
+  --exclude "*.DS_Store"
 ```
 
 ## Option 1: Train on Google Colab
