@@ -19,3 +19,16 @@ hf upload-large-folder keisuke-miyako/legal-euro-2026-0524 . \
 ```
 
 ## Option 1: Train on Google Colab
+
+### Pro
+
+- Quick tests on small VM are free
+- Integration with Google Drive
+- High-end GPUs available
+- Pay-as-you-go or subscription
+
+### Con
+- Single GPUm no clusters
+- Memory constraints
+- Termination after several minutes of browser inactivity
+- Termination after `7` to `9` hours of activity
