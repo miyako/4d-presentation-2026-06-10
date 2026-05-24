@@ -80,4 +80,5 @@ Ask <img width="12" height="12" alt="claude-logo" src="https://github.com/user-a
 |`1`|`-0.01`|`0.66`|`0.38`
 |`0`|`-0.04`|`0.61`|`0.25`
 
-The "spread" widened from `0.12` to `0.20`
+- The "spread" widened from `0.12` to `0.20`: presumably good
+- The overall cosine similarity is depressed: potenitally bad
