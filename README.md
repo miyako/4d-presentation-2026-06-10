@@ -18,6 +18,10 @@ hf upload-large-folder keisuke-miyako/legal-euro-2026-0524 . \
   --exclude "*.DS_Store"
 ```
 
+## LoRA
+
+### LoRA Parameters
+
 ## Option 1: Train on Google Colab
 
 ### Pro
