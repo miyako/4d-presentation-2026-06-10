@@ -33,6 +33,6 @@ hf upload-large-folder keisuke-miyako/legal-euro-2026-0524 . \
 - Termination after several minutes of browser inactivity
 - Termination after `7` to `9` hours of activity
 
-### Example
+### Example for BGE M3
 
 https://colab.research.google.com/drive/170FXbDOp_V12AuKw81O_QFEUSVa0k_tH?usp=sharing
