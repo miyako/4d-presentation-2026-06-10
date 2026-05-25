@@ -107,7 +107,8 @@ Ask <img width="12" height="12" alt="claude-logo" src="https://github.com/user-a
 
 - The overall cosine similarity is slightly less depressed: good
 - Otherwise not that different from last round: not good
-
+- Most of the meaningful learning happened in the first ~10% of training: not good
+ 
 > [!WARNING]
 > This might be the limit of Google Colab where you can only rent a **single** GPU. You may have to move on to multiple GPUs at this point. You can't increase per-device-batch, or add more transformer layers, or increase gradient accumilation on a Google Colab NVIDIA A100 which has a limited `40` GB memory.
 
