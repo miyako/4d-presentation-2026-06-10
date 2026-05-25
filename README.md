@@ -162,7 +162,11 @@ group size      : 7↑
 
 <img width="500" height="auto" alt="training-loss" src="https://github.com/user-attachments/assets/50f3646f-db61-4880-84e4-c93c88172ba4" />
 
-Ask <img width="12" height="12" alt="claude-logo" src="https://github.com/user-attachments/assets/7f11737c-c2eb-4b6f-a025-a02d12ef998d" /> for advice: [https://claude.ai/share/4bb410a2-fdb4-49d7-bcb7-afa54b63da31](https://claude.ai/share/3759a41c-a4fc-4089-927d-9b15acf40e6f)
+Ask <img width="12" height="12" alt="claude-logo" src="https://github.com/user-attachments/assets/7f11737c-c2eb-4b6f-a025-a02d12ef998d" /> for advice: https://claude.ai/share/b5cc4907-a988-4ba6-8027-68ecce2a2ae6
+
+- Smoothing learning curve: good
+- The learning plateau'd: not good
+- Thelearning rate is probably too low: not good
 
 #### Round 5 (r15)
 
