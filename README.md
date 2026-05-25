@@ -143,7 +143,48 @@ Ask <img width="12" height="12" alt="claude-logo" src="https://github.com/user-a
 - The attention output path is frozen: not good
 - Warmup is too long: not good
 - The `dense` layer is not trained: not good
- 
+
+## Analysis of Your Fine-Tune Results
+
+### Overall Verdict: **Mixed — promising signal, but imbalanced learning**
+
+The spread doubling (0.12 → 0.24) is a real win, but the gains came almost entirely from **pushing negatives down**, not pulling positives up. That's the core problem.
+
+### What went well ✅
+
+| Observation | Why it's good |
+|---|---|
+| Spread 0.12 → 0.24 | Model learned to discriminate at all |
+| Neg (0) avg: 0.40 → 0.23 | Strong separation from irrelevant docs |
+| Neg can now go negative (-0.05) | Model is more "aggressive" / less shy |
+| Warmup 5%, cosine scheduler | Solid, standard choices |
+| Rank 64 / Alpha 128 | Reasonable LoRA capacity for a large embedding model |
+
+### What went wrong ❌
+
+**The critical issue:** Positives went *down*, not up.
+
+```
+Relevance 3:  0.52 avg  →  0.47 avg   ← should be going UP
+Relevance 0:  0.40 avg  →  0.23 avg   ← this part worked
+```
+
+Also, the **min for relevance 3 collapsed** from 0.22 → 0.02. Some clearly relevant pairs are now being scored near zero — that's a sign of partial catastrophic forgetting or loss imbalance.
+
+→ Lower temperature sharpens the distribution and forces positives higher.
+
+The `dense` layer in BGE-M3 is part of the projection head — fine-tuning it with LoRA can destabilise the embedding geometry. The original model's positive scores dropping is consistent with this.
+
+→ Remove `dense` and only keep `query, key, value`. Possibly `out_proj`).
+
+Alpha=128 / Rank=64 = effective scale of **2.0**. This is on the high end and amplifies gradient updates. Combined with `dense` in scope, it may be overwriting the pre-trained geometry.
+
+→ Set alpha=64 (= rank) for a more conservative 1.0 scale, which is the common default.
+
+32 devices × 2 GPUs × 2 grad accum = **effective batch of 128**, plus group size 7 = ~896 pairs per step. This is large. With hard negatives at this scale, easy negatives dominate and the loss gets "lazy" — it can satisfy itself by pushing negatives down without learning to score positives higher.
+
+→ **Consider mining harder negatives** or reducing group size to 3–5 with only hard negatives.
+
 #### Round 4 (r14)
 
 ```
