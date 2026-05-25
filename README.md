@@ -96,6 +96,8 @@ gpu             : 1
 
 <img width="500" height="auto" alt="training-loss" src="https://github.com/user-attachments/assets/2e9d730d-2109-4bf7-b720-1995f7bbb867" />
 
+Ask <img width="12" height="12" alt="claude-logo" src="https://github.com/user-attachments/assets/7f11737c-c2eb-4b6f-a025-a02d12ef998d" /> for advice: https://claude.ai/share/4bb410a2-fdb4-49d7-bcb7-afa54b63da31
+
 |Relevance|Min|Max|Average|
 |:-:|-:|-:|-:|
 |`3`|`0.01`|`0.75`|`0.46`
@@ -103,7 +105,8 @@ gpu             : 1
 |`1`|`0.01`|`0.66`|`0.39`
 |`0`|`-0.00`|`0.62`|`0.26`
 
-Ask <img width="12" height="12" alt="claude-logo" src="https://github.com/user-attachments/assets/7f11737c-c2eb-4b6f-a025-a02d12ef998d" /> for advice: https://claude.ai/share/4bb410a2-fdb4-49d7-bcb7-afa54b63da31
+- The overall cosine similarity is slightly less depressed: good
+- Otherwise not that different from last round: not good
 
 > [!WARNING]
 > This might be the limit of Google Colab where you can only rent a **single** GPU. You may have to move on to multiple GPUs at this point. You can't increase per-device-batch, or add more transformer layers, or increase gradient accumilation on a Google Colab NVIDIA A100 which has a limited `40` GB memory.
@@ -121,14 +124,14 @@ gpu             : 3↑
 
 <img width="500" height="auto" alt="training-loss" src="https://github.com/user-attachments/assets/98e36ab6-5c5c-4ad7-8086-45c6fee996ed" />
 
+Ask <img width="12" height="12" alt="claude-logo" src="https://github.com/user-attachments/assets/7f11737c-c2eb-4b6f-a025-a02d12ef998d" /> for advice: https://claude.ai/share/4a05d25f-7141-4514-a877-146c5d47b263
+
 |Relevance|Min|Max|Average|
 |:-:|-:|-:|-:|
 |`3`|`0.12`|`0.80`|`0.51`
 |`2`|`0.12`|`0.78`|`0.49`
 |`1`|`0.12`|`0.72`|`0.45`
 |`0`|`0.05`|`0.70`|`0.31`
-
-Ask <img width="12" height="12" alt="claude-logo" src="https://github.com/user-attachments/assets/7f11737c-c2eb-4b6f-a025-a02d12ef998d" /> for advice: [https://claude.ai/share/4a05d25f-7141-4514-a877-146c5d47b263](https://claude.ai/share/4a05d25f-7141-4514-a877-146c5d47b263)
 
 #### Round 4 (r14)
 
