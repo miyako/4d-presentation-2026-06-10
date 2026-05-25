@@ -338,7 +338,6 @@ learning rate:  : 8e-6↑
 neg. device     : False
 self distill    : False
 max_grad_norm   : 0.5↓
-gradient accum. : 1
 epochs          : 2
 temperature     : 0.05↑
 rank            : 128
