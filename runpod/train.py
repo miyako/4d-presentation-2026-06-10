@@ -10,7 +10,7 @@ from FlagEmbedding.finetune.embedder.encoder_only.m3 import (
 )
 
 import sys
-Rn         = sys.argv[1] if len(sys.argv) > 1 else "r9"
+Rn         = sys.argv[1] if len(sys.argv) > 1 else "r14"
 RESUME     = sys.argv[2].lower() == "true" if len(sys.argv) > 2 else False  # FIX 1: removed hardcoded overrides below
 CHECKPOINT = sys.argv[3] if len(sys.argv) > 3 else ""
 
@@ -24,22 +24,19 @@ HF_TOKEN   = os.environ.get("HF_TOKEN", "")
 # ─────────────────────────────────────────────────────────────────────────────
 
 # ── Training hyperparameters ──────────────────────────────────────────────────
-# Cluster: 3 × 24 GB GPUs with torch 2.4.1+cu124
-# Effective batch = PER_DEVICE_BATCH × GRAD_ACCUM × NUM_GPUS = 8 × 2 × 3 = 48  # FIX 2: corrected comment
-# negatives_cross_device=True: each GPU sees negatives from all 3 GPUs
-PER_DEVICE_BATCH    = 8
-GRAD_ACCUM          = 2    # FIX 9: was 1 — smoother gradients, effective batch 24 → 48
-EPOCHS              = 3    # FIX 9: was 2 — small dataset benefits from an extra epoch
-LEARNING_RATE       = 5e-06
-LORA_RANK           = 32
-LORA_ALPHA          = 64
-LORA_TARGET_MODULES = ['query', 'key', 'value', 'dense']  # FIX 5: added 'dense' (attention output projection)
-SUB_BATCH_SIZE      = 8    # FIX 4: was 1 — encode full group together for better contrastive gradients
+PER_DEVICE_BATCH    = 32
+GRAD_ACCUM          = 1
+EPOCHS              = 3
+LEARNING_RATE       = 5e-6
+LORA_RANK           = 64
+LORA_ALPHA          = 64   # alpha=rank (scale=1.0)
+LORA_TARGET_MODULES = ['query', 'key', 'value', 'dense']
+SUB_BATCH_SIZE      = 32   # match per_device_batch
 PASSAGE_MAX_LEN     = 1024
-TEMPERATURE         = 0.05
-SAFE_GROUP          = 5    # FIX 3: was 8 — avg negatives is 3.4, group of 5 (1 pos + 4 neg) avoids padding repeats
+TEMPERATURE         = 0.07 # was 0.05
+SAFE_GROUP          = 6    # was 7
 NUM_GPUS            = 4
-QUERY_MAX_LEN       = 64   # extracted constant so padded_forward stays in sync with data_args
+QUERY_MAX_LEN       = 64
 # ─────────────────────────────────────────────────────────────────────────────
 
 # ── Download dataset from Hugging Face (rank 0 only) ─────────────────────────
@@ -110,15 +107,20 @@ class LoRAM3Runner(EncoderOnlyEmbedderM3Runner):
                 cache_dir=cache_folder,
                 ignore_patterns=["flax_model.msgpack", "rust_model.ot", "tf_model.h5"]
             )
+
+        # Load base transformer
         model = AutoModel.from_pretrained(
             model_name_or_path,
             cache_dir=cache_folder,
             trust_remote_code=trust_remote_code,
             torch_dtype=torch_dtype,
         )
+
+        # Create projection heads (shapes must match checkpoint)
+        colbert_out = model.config.hidden_size if colbert_dim <= 0 else colbert_dim
         colbert_linear = torch.nn.Linear(
             in_features=model.config.hidden_size,
-            out_features=model.config.hidden_size if colbert_dim <= 0 else colbert_dim,
+            out_features=colbert_out,
             dtype=torch_dtype,
         )
         sparse_linear = torch.nn.Linear(
@@ -126,6 +128,51 @@ class LoRAM3Runner(EncoderOnlyEmbedderM3Runner):
             out_features=1,
             dtype=torch_dtype,
         )
+
+        # ── Load pre-trained colbert/sparse weights from BGE-M3 checkpoint ──────
+        # CRITICAL: use_self_distill=True uses colbert+sparse scores as a teacher
+        # signal. Random init here means garbage teacher → dense scores degrade.
+        # We load the full checkpoint state dict and splice in the projection weights.
+        import glob
+        state_dict = None
+
+        # Prefer safetensors (sharded or single)
+        st_files = sorted(glob.glob(os.path.join(model_name_or_path, "*.safetensors")))
+        if st_files:
+            try:
+                from safetensors.torch import load_file
+                state_dict = {}
+                for f in st_files:
+                    state_dict.update(load_file(f, device="cpu"))
+                print(f"Loaded checkpoint from {len(st_files)} safetensors shard(s)")
+            except Exception as e:
+                print(f"WARNING: safetensors load failed ({e}), trying pytorch_model.bin")
+
+        if state_dict is None:
+            pt_file = os.path.join(model_name_or_path, "pytorch_model.bin")
+            if os.path.exists(pt_file):
+                state_dict = torch.load(pt_file, map_location="cpu")
+                print("Loaded checkpoint from pytorch_model.bin")
+            else:
+                print("WARNING: No checkpoint found — colbert/sparse heads will use random init")
+
+        if state_dict is not None:
+            for head_name, head_module in [("colbert_linear", colbert_linear),
+                                           ("sparse_linear",  sparse_linear)]:
+                prefix    = head_name + "."
+                head_dict = {k[len(prefix):]: v for k, v in state_dict.items()
+                             if k.startswith(prefix)}
+                if head_dict:
+                    # Cast to match the linear layer's dtype if needed
+                    if torch_dtype is not None:
+                        head_dict = {k: v.to(torch_dtype) for k, v in head_dict.items()}
+                    head_module.load_state_dict(head_dict, strict=True)
+                    print(f"  ✓ {head_name}: loaded pre-trained weights "
+                          f"({list(head_dict['weight'].shape)})")
+                else:
+                    print(f"  ✗ WARNING: {head_name} not found in checkpoint — random init")
+        # ─────────────────────────────────────────────────────────────────────────
+
         return {"model": model, "colbert_linear": colbert_linear, "sparse_linear": sparse_linear}
 
     def load_tokenizer_and_model(self):
@@ -224,6 +271,7 @@ training_args = EncoderOnlyEmbedderM3TrainingArguments(
     learning_rate=LEARNING_RATE,
     lr_scheduler_type="cosine",                          # FIX 8: was default linear — cosine works better for retrieval
     warmup_steps=int(0.05 * total_steps),                # FIX 7: was 10% warmup — 5% is sufficient for LoRA
+    max_grad_norm=1.0, # Or 0.5 if you see spikes again
     weight_decay=0.01,
     bf16=True,
     fp16=False,
@@ -238,9 +286,9 @@ training_args = EncoderOnlyEmbedderM3TrainingArguments(
     use_self_distill=True,
     logging_steps=10,
     save_strategy="steps",
-    save_steps=500,
+    save_steps=100,
     save_total_limit=3,
-    dataloader_num_workers=4,      # FIX 6: was 0 — prevents GPU idle during tokenisation at PASSAGE_MAX_LEN=1024
+    dataloader_num_workers = 8, # was 4
     remove_unused_columns=False,
     report_to="none",
 )

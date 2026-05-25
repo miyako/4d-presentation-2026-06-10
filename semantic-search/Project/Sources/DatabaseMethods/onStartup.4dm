@@ -30,7 +30,7 @@ var $max_position_embeddings; $batch_size; $parallel; $threads; $batches : Integ
 
 $folder:=$homeFolder.folder("bge-m3-legal-euro")
 $path:="bge-m3-legal-q8_0.gguf"
-$URL:="keisuke-miyako/bge-m3-legal-euro-r15-gguf"
+$URL:="keisuke-miyako/bge-m3-legal-euro-r16-gguf"
 
 $pooling:="cls"
 $ubatch_size:=1024  //max_position_embeddings=8194, but for better granularity
