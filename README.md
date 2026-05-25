@@ -222,3 +222,26 @@ max grad. norm. : 1.0
 ```
 
 <img width="500" height="auto" alt="training-loss" src="https://github.com/user-attachments/assets/330531e8-87b8-4b7d-9c74-dc3ab23ea634" />
+
+Ask <img width="12" height="12" alt="claude-logo" src="https://github.com/user-attachments/assets/7f11737c-c2eb-4b6f-a025-a02d12ef998d" /> for advice: https://claude.ai/share/8966219c-ddc0-4dbd-9e4c-7546e578c325
+
+- Switch to reranker generated dataset `18794` rows
+- Restore `dense` layer
+- Reduce epochs
+
+#### Round 7 (r17)
+
+```
+learning rate:  : 5e-6
+epochs          : 3↓
+batch/device    : 32
+gpu             : 4
+target modules  : query, key, value, dense+
+gradient accum. : 1
+warmup          : 0.05
+rank            : 64
+alpha           : 64
+lr scheduler    : cosine
+group size      : 6↑
+max grad. norm. : 1.0
+```
