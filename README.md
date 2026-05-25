@@ -286,6 +286,14 @@ group size      : 4
 Ask <img width="12" height="12" alt="claude-logo" src="https://github.com/user-attachments/assets/7f11737c-c2eb-4b6f-a025-a02d12ef998d" /> 
 https://claude.ai/share/13bba93d-594f-4c9f-bfe1-791b2664d026
 
+|Relevance|Min|Max|Average|
+|:-:|-:|-:|-:|
+|`3`|`0.39`|`0.77`|`0.62`
+|`2`|`0.32`|`0.76`|`0.58`
+|`1`|`0.37`|`0.72`|`0.55`
+|`0`|`0.29`|`0.61`|`0.46`
+
+
 > [!TIP]
 > `grad_accum` has the effect of making a single GPU do the job of multiple GPUs simultaneously; for example, `grad_accum=4` means the GPU runs 4 batches and averages the accumulated weights. With 4 GPUs, the work could be done simultaneously. Setting `negatives_cross_device` to `False` means each GPU will work with the batch it has been assigned. It will typically see fewer negatives for each positive. Setting `negatives_cross_device` to `True` means each GPU will also see the negatives assigned to other GPUs. The idea is weigh the position in relation to a diverse set of negatives. The mode is effective when training with a wide variety of data. It may backfire when training with a narrow, domain specific dataset.
 
