@@ -164,6 +164,13 @@ group size      : 7↑
 
 Ask <img width="12" height="12" alt="claude-logo" src="https://github.com/user-attachments/assets/7f11737c-c2eb-4b6f-a025-a02d12ef998d" /> for advice: https://claude.ai/share/b5cc4907-a988-4ba6-8027-68ecce2a2ae6
 
+|Relevance|Min|Max|Average|
+|:-:|-:|-:|-:|
+|`3`|`0.02`|`0.79`|`0.47`
+|`2`|`0.02`|`0.77`|`0.45`
+|`1`|`0.04`|`0.72`|`0.41`
+|`0`|`-0.05`|`0.69`|`0.23`
+
 - Smoothing learning curve: good
 - The learning plateau'd: not good
 - Thelearning rate is probably too low: not good
