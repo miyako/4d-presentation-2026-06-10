@@ -255,6 +255,13 @@ max grad. norm. : 1.0
 
 <img width="500" height="auto" alt="training-loss-2" src="https://github.com/user-attachments/assets/085b526e-fb4d-4f41-bdcb-94e985cce42d" />
 
+|Relevance|Min|Max|Average|
+|:-:|-:|-:|-:|
+|`3`|`0.20`|`0.78`|`0.55`
+|`2`|`0.07`|`0.78`|`0.47`
+|`1`|`0.17`|`0.70`|`0.44`
+|`0`|`0.02`|`0.51`|`0.24`
+
 #### Round 8 (r18)
 
 ```
