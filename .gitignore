@@ -2,3 +2,5 @@ semantic-search/Data/*
 semantic-search/Project/DerivedData/*
 semantic-search/userPreferences.*
 runpod/setup.sh
+runpod/r13/*
+runpod/r14/*
