@@ -148,7 +148,7 @@ Ask <img width="12" height="12" alt="claude-logo" src="https://github.com/user-a
 
 ```
 learning rate:  : 5e-6
-epochs          : 3
+epochs          : 3↑
 batch/device    : 32↑
 gpu             : 2↓
 target modules  : dense+
@@ -156,13 +156,23 @@ gradient accum. : 2↑
 warmup          : 0.05↓
 rank            : 64↑
 alpha           : 128↑
-lr scheduler    : cosine
+lr scheduler    : linear→cosine
 group size      : 7↑
 ```
 
 #### Round 5 (r15)
 
 ```
-max grad. norm. : 1.0
+learning rate:  : 5e-6
+epochs          : 3
+batch/device    : 32
+gpu             : 4↑
+target modules  : query, key, value, dense
 gradient accum. : 1↓
+warmup          : 0.05
+rank            : 64
+alpha           : 128
+lr scheduler    : cosine
+group size      : 7
+max grad. norm. : 1.0+
 ```
