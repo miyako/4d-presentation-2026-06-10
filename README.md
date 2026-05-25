@@ -276,6 +276,21 @@ Ask <img width="12" height="12" alt="claude-logo" src="https://github.com/user-a
 
 #### Round 9 (r19)
 
+```
+learning rate:  : 8e-6↑
+epochs          : 5↑
+batch/device    : 32
+gpu             : 4
+target modules  : query, key, value, dense
+gradient accum. : 1
+warmup          : 0.05
+rank            : 128↑
+alpha           : 128↑
+lr scheduler    : cosine
+group size      : 6
+max grad. norm. : 1.0
+```
+
 <img width="500" height="auto" alt="training-loss" src="https://github.com/user-attachments/assets/d9e64562-b6ff-4ee5-8e35-2c5697e09c59" />
 
 Ask <img width="12" height="12" alt="claude-logo" src="https://github.com/user-attachments/assets/7f11737c-c2eb-4b6f-a025-a02d12ef998d" /> 
