@@ -253,13 +253,6 @@ group size      : 6↑
 max grad. norm. : 1.0
 ```
 
-|Relevance|Min|Max|Average|
-|:-:|-:|-:|-:|
-|`3`|`0.20`|`0.78`|`0.55`
-|`2`|`0.07`|`0.78`|`0.47`
-|`1`|`0.17`|`0.70`|`0.44`
-|`0`|`0.02`|`0.51`|`0.24`
-
 #### Round 8 (r18)
 
 ```
@@ -280,3 +273,27 @@ max grad. norm. : 1.0
 <img width="500" height="auto" alt="training-loss" src="https://github.com/user-attachments/assets/e4e62b74-20e7-4c24-9606-049c02f00113" />
 
 Ask <img width="12" height="12" alt="claude-logo" src="https://github.com/user-attachments/assets/7f11737c-c2eb-4b6f-a025-a02d12ef998d" /> https://claude.ai/share/51cd7ae2-c0a4-4d9e-8d56-dbe458afb52a
+
+> [!TIP] `grad_accum` has the effect of making a single GPU do the job of multiple GPUs simultaneously; for example, `grad_accum=4` means the GPU runs 4 batches and averages the accumulated weights. With 4 GPUs, the work could be done simultaneously. Setting `negatives_cross_device` to `False` means each GPU will work with the batch it has been assigned. It will typically see fewer negatives for each positive. Setting `negatives_cross_device` to `True` means each GPU will also see the negatives assigned to other GPUs. The idea is weigh the position in relation to a diverse set of negatives. The mode is effective when training with a wide variety of data. It may backfire when training with a narrow, domain specific dataset.
+
+#### Round 11 (r21)
+
+Switch to exploded dataset [2026-0526](https://huggingface.co/datasets/keisuke-miyako/legal-euro-2026-0525/settings) 
+
+```
+Original rows: 17808
+Exploded rows : 84413
+Expansion     : 4.74x
+```
+
+https://colab.research.google.com/drive/1rGyyUfh_Fu9rzlhtThv0Eb51ySjrVsb2?usp=sharing
+
+```
+neg. device     : False
+gradient accum. : 1
+epochs          : 3↓
+temperature     : 0.02↓
+rank            : 128
+alpha           : 128
+group size      : 4↓
+```
