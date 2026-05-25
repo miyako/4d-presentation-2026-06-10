@@ -233,6 +233,8 @@ group size      : 7
 max grad. norm. : 1.0+
 ```
 
+<img width="500" height="auto" alt="training-loss" src="https://github.com/user-attachments/assets/434eb039-b1f7-4501-bd38-1f76d536ba53" />
+
 #### Round 6 (r16)
 
 ```
