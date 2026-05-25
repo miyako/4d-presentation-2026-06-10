@@ -241,6 +241,7 @@ Ask <img width="12" height="12" alt="claude-logo" src="https://github.com/user-a
 - Learning rate is too aggressive: not good
 - Alpha-rank scaling is aggressive: not good
 - Fine-tuning the dense layer can destabilize the embedding geometry: not good
+- Dataset increaed to `20100`
 
 #### Round 6 (r16)
 
