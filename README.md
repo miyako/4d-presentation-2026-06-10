@@ -37,9 +37,6 @@ hf upload-large-folder keisuke-miyako/legal-euro-2026-0524 . \
 
 ### Example for BGE M3
 
-https://colab.research.google.com/drive/170FXbDOp_V12AuKw81O_QFEUSVa0k_tH?usp=sharing
-https://colab.research.google.com/drive/1XAqhA8Eto-S0IvD22pG9YFIra3tupy6n?usp=sharing
-
 #### Dataset Stats
 
 ```
@@ -48,7 +45,7 @@ Positives per row : min=1  max=15  avg=4.2
 Negatives per row : min=1  max=13  avg=3.4
 ```
 
-### Measurements before Training
+#### Measurements before Training
 
 |Relevance|Min|Max|Average|
 |:-:|-:|-:|-:|
@@ -57,13 +54,10 @@ Negatives per row : min=1  max=13  avg=3.4
 |`1`|`0.26`|`0.69`|`0.47`
 |`0`|`0.21`|`0.63`|`0.40`
 
-### Loss & Learning Rate
+#### Round 1 (r11)
 
-<img width="500" height="auto" alt="training-loss" src="https://github.com/user-attachments/assets/90a7721a-925a-4b4c-9c11-029286a8b964" />
-
-Ask <img width="12" height="12" alt="claude-logo" src="https://github.com/user-attachments/assets/7f11737c-c2eb-4b6f-a025-a02d12ef998d" /> for advice: https://claude.ai/share/26f496a3-e877-43fb-b8df-e024557d13ae
-
-### Measurements after Training
+https://colab.research.google.com/drive/170FXbDOp_V12AuKw81O_QFEUSVa0k_tH?usp=sharing
+https://colab.research.google.com/drive/1XAqhA8Eto-S0IvD22pG9YFIra3tupy6n?usp=sharing
 
 ```
 learning rate:  : 1e-5
@@ -71,6 +65,10 @@ epochs          : 3
 batch/device    : 4
 gpu             : 1
 ```
+
+<img width="500" height="auto" alt="training-loss" src="https://github.com/user-attachments/assets/90a7721a-925a-4b4c-9c11-029286a8b964" />
+
+Ask <img width="12" height="12" alt="claude-logo" src="https://github.com/user-attachments/assets/7f11737c-c2eb-4b6f-a025-a02d12ef998d" /> for advice: https://claude.ai/share/26f496a3-e877-43fb-b8df-e024557d13ae
 
 |Relevance|Min|Max|Average|
 |:-:|-:|-:|-:|
@@ -84,14 +82,10 @@ gpu             : 1
 - The overall cosine similarity is depressed: potentially bad
 - Possible **overfitting**: not good
 
-### Example for BGE M3 (2nd round)
+#### Round 2 (r12)
 
 https://colab.research.google.com/drive/1pXcGt0nIrgcj976-fY6yb4hvuH2xHyvu?usp=sharing
 https://colab.research.google.com/drive/1bDpXaBE2ck4Ajs1xeoD5MMI8M-ZAkS8b?usp=sharing
-
-<img width="500" height="auto" alt="training-loss" src="https://github.com/user-attachments/assets/2e9d730d-2109-4bf7-b720-1995f7bbb867" />
-
-### Measurements after Training
 
 ```
 learning rate:  : 8e-6↓
@@ -99,6 +93,8 @@ epochs          : 2↓
 batch/device    : 4
 gpu             : 1
 ```
+
+<img width="500" height="auto" alt="training-loss" src="https://github.com/user-attachments/assets/2e9d730d-2109-4bf7-b720-1995f7bbb867" />
 
 |Relevance|Min|Max|Average|
 |:-:|-:|-:|-:|
@@ -114,6 +110,8 @@ Ask <img width="12" height="12" alt="claude-logo" src="https://github.com/user-a
 
 ## Option 2: Train on RunPod
 
+#### Round 3 (r13)
+
 ```
 learning rate:  : 5e-6↓
 epochs          : 2
@@ -123,14 +121,26 @@ gpu             : 3↑
 
 <img width="500" height="auto" alt="training-loss" src="https://github.com/user-attachments/assets/98e36ab6-5c5c-4ad7-8086-45c6fee996ed" />
 
+|Relevance|Min|Max|Average|
+|:-:|-:|-:|-:|
+|`3`|`0.12`|`0.80`|`0.51`
+|`2`|`0.12`|`0.78`|`0.49`
+|`1`|`0.12`|`0.72`|`0.45`
+|`0`|`0.05`|`0.70`|`0.31`
+
 Ask <img width="12" height="12" alt="claude-logo" src="https://github.com/user-attachments/assets/7f11737c-c2eb-4b6f-a025-a02d12ef998d" /> for advice: [https://claude.ai/share/4a05d25f-7141-4514-a877-146c5d47b263](https://claude.ai/share/4a05d25f-7141-4514-a877-146c5d47b263)
+
+#### Round 4 (r14)
 
 ```
 learning rate:  : 5e-6
-epochs          : 3↑
-batch/device    : 8↑
-gpu             : 3↑
+epochs          : 3
+batch/device    : 32↑
+gpu             : 2↓
 target modules  : dense+
 gradient accum. : 2↑
 warmup          : 0.05↓
+rank            : 64↑
+alpha           : 128↑
 ```
+
