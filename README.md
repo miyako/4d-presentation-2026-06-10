@@ -259,6 +259,13 @@ group size      : 6
 Ask <img width="12" height="12" alt="claude-logo" src="https://github.com/user-attachments/assets/7f11737c-c2eb-4b6f-a025-a02d12ef998d" /> 
 https://claude.ai/share/42192258-5ed4-4234-b1b9-12d753233119
 
+|Relevance|Min|Max|Average|
+|:-:|-:|-:|-:|
+|`3`|`0.07`|`0.78`|`0.50`
+|`2`|`-0.11`|`0.77`|`0.41`
+|`1`|`0.05`|`0.71`|`0.37`
+|`0`|`-0.12`|`0.45`|`0.12`
+  
 #### Round 10 (r20)
 
 ```
