@@ -77,11 +77,6 @@ Ask <img width="12" height="12" alt="claude-logo" src="https://github.com/user-a
 |`1`|`-0.01`|`0.66`|`0.38`
 |`0`|`-0.04`|`0.61`|`0.25`
 
-- The "spread" widened from `0.12` to `0.20`: presumably good
-- The hierarchy is instact: demonstratively good
-- The overall cosine similarity is depressed: potentially bad
-- Possible **overfitting**: not good
-
 #### Round 2 (r12)
 
 https://colab.research.google.com/drive/1pXcGt0nIrgcj976-fY6yb4hvuH2xHyvu?usp=sharing
@@ -105,10 +100,6 @@ Ask <img width="12" height="12" alt="claude-logo" src="https://github.com/user-a
 |`1`|`0.01`|`0.66`|`0.39`
 |`0`|`-0.00`|`0.62`|`0.26`
 
-- The overall cosine similarity is slightly less depressed: good
-- Otherwise not that different from last round: not good
-- Most of the meaningful learning happened in the first ~10% of training: not good
- 
 > [!WARNING]
 > This might be the limit of Google Colab where you can only rent a **single** GPU. You may have to move on to multiple GPUs at this point. You can't increase per-device-batch, or add more transformer layers, or increase gradient accumilation on a Google Colab NVIDIA A100 which has a limited `40` GB memory.
 
@@ -143,11 +134,9 @@ Ask <img width="12" height="12" alt="claude-logo" src="https://github.com/user-a
 |`1`|`0.12`|`0.72`|`0.45`
 |`0`|`0.05`|`0.70`|`0.31`
 
-- The attention output path is frozen: not good
-- Warmup is too long: not good
-- The `dense` layer is not trained: not good
-
 #### Round 4 (r14)
+
+Add `dense` layer to LoRA
 
 ```
 learning rate:  : 5e-6
@@ -174,11 +163,6 @@ Ask <img width="12" height="12" alt="claude-logo" src="https://github.com/user-a
 |`1`|`0.04`|`0.72`|`0.41`
 |`0`|`-0.05`|`0.69`|`0.23`
 
-- Smoothing learning curve: good
-- The spread doubled: good
-- The learning plateau'd: not good
-- Thelearning rate is probably too low: not good
-
 #### Round 5 (r15)
 
 ```
@@ -199,10 +183,6 @@ max grad. norm. : 1.0+
 <img width="500" height="auto" alt="training-loss" src="https://github.com/user-attachments/assets/434eb039-b1f7-4501-bd38-1f76d536ba53" />
 
 Ask <img width="12" height="12" alt="claude-logo" src="https://github.com/user-attachments/assets/7f11737c-c2eb-4b6f-a025-a02d12ef998d" /> for advice: https://claude.ai/share/bc471893-e83a-4969-8c54-5f9cd1dce6cd
-
-- The `dense` layer in BGE-M3 is part of the projection head — fine-tuning it with LoRA can destabilise the embedding geometry: not good
-- Effective batch size of 128 plus group size 7 = ~896 pairs per step is large: not good 
-- Learning rate is high and epochs are insufficient: not good
 
 #### Round 6 (r16)
 
@@ -232,11 +212,9 @@ Ask <img width="12" height="12" alt="claude-logo" src="https://github.com/user-a
 |`1`|`0.27`|`0.69`|`0.46`
 |`0`|`0.14`|`0.53`|`0.31`
 
-- Switch to reranker generated dataset `18794` rows
-- Restore `dense` layer
-- Reduce epochs
-
 #### Round 8 (r18)
+
+Switch to reranker generated dataset `18794` rows (no more GPT selected rows)
 
 ```
 learning rate:  : 5e-6
