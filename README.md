@@ -255,3 +255,19 @@ max grad. norm. : 1.0
 
 <img width="500" height="auto" alt="training-loss-2" src="https://github.com/user-attachments/assets/085b526e-fb4d-4f41-bdcb-94e985cce42d" />
 
+#### Round 8 (r18)
+
+```
+learning rate:  : 5e-6
+epochs          : 4↑
+batch/device    : 32
+gpu             : 4
+target modules  : query, key, value, dense
+gradient accum. : 1
+warmup          : 0.05
+rank            : 64
+alpha           : 64
+lr scheduler    : cosine
+group size      : 6
+max grad. norm. : 1.0
+```
