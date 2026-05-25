@@ -133,6 +133,10 @@ Ask <img width="12" height="12" alt="claude-logo" src="https://github.com/user-a
 |`1`|`0.12`|`0.72`|`0.45`
 |`0`|`0.05`|`0.70`|`0.31`
 
+- The attention output path is frozen: not good
+- Warmup is too long: not good
+- The `dense` layer is not trained: not good
+ 
 #### Round 4 (r14)
 
 ```
