@@ -237,12 +237,6 @@ Alpha=128 / Rank=64 = effective scale of **2.0**. This is on the high end and am
 
 → **Consider mining harder negatives** or reducing group size to 3–5 with only hard negatives.
 
-- Positives went down: not good
-- Learning rate is too aggressive: not good
-- Alpha-rank scaling is aggressive: not good
-- Fine-tuning the dense layer can destabilize the embedding geometry: not good
-- Dataset increaed to `20100`
-
 #### Round 6 (r16)
 
 ```
