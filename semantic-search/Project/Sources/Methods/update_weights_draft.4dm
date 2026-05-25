@@ -5,7 +5,7 @@ $embeddings:=cs:C1710.Embeddings.me
 var $stats:=["|Relevance|Min|Max|Average|"; "|:-:|-:|-:|-:|"]
 $cosineSimilarity:=[[]; []; []; []]
 
-$all:=ds:C1482.Score.all().slice(1000; 5000)
+$all:=ds:C1482.Score.all().slice(0; 5000)
 
 For each ($score; $all)
 	var $query : cs:C1710.QueryEntity
