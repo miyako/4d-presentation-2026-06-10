@@ -318,3 +318,6 @@ rank            : 128
 alpha           : 128
 group size      : 4
 ```
+
+<img width="500" height="auto" alt="training-loss" src="https://github.com/user-attachments/assets/cdbcfc44-8565-4895-82e4-aa6a59f2a17e" />
+
