@@ -117,7 +117,7 @@ Ask <img width="12" height="12" alt="claude-logo" src="https://github.com/user-a
 ## Option 2: Train on RunPod
 
 > [!TIP]
-> When training is conducted across multiple GPUs (`negatives_cross_device`), each query is compared against its own 1 positive, its own 6 hard negatives, PLUS the passages sitting on the other GPU (which act as extra "in-batch negatives").
+> When training is conducted across multiple GPUs (`negatives_cross_device`), each query is compared against `1` random positive and `group size-1` random negatives, plus the passages sitting on other GPUs which act as extra "in-batch negatives". With a large enough dataset, the statistical probability of two nearly identical queries ending up in the exact same global batch is extremely low. 
 
 #### Round 3 (r13)
 
@@ -164,4 +164,5 @@ group size      : 7↑
 
 ```
 max grad. norm. : 1.0
+gradient accum. : 1↓
 ```
