@@ -160,6 +160,8 @@ lr scheduler    : linear→cosine
 group size      : 7↑
 ```
 
+<img width="500" height="auto" alt="training-loss" src="https://github.com/user-attachments/assets/50f3646f-db61-4880-84e4-c93c88172ba4" />
+
 #### Round 5 (r15)
 
 ```
