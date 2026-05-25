@@ -152,5 +152,11 @@ gradient accum. : 2↑
 warmup          : 0.05↓
 rank            : 64↑
 alpha           : 128↑
+lr scheduler    : cosine
 ```
 
+#### Round 5 (r15)
+
+```
+max grad. norm : 1.0
+```
