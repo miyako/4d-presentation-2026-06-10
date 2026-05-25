@@ -119,6 +119,8 @@ Ask <img width="12" height="12" alt="claude-logo" src="https://github.com/user-a
 > [!TIP]
 > When training is conducted across multiple GPUs (`negatives_cross_device`), each query is compared against `1` random positive and `group size-1` random negatives, plus the passages sitting on other GPUs which act as extra "in-batch negatives". With a large enough dataset, the statistical probability of two nearly identical queries ending up in the exact same global batch is extremely low. 
 
+> [!NOTE] GPU may become unavailable for an extended period of time, depending on the hour and region. It would be wise to have a network storage on each size of the Atlantic (Europe and Canada) to avoid wait time.
+
 #### Round 3 (r13)
 
 ```
