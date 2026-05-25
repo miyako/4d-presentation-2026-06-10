@@ -282,7 +282,7 @@ group size      : 4
 Switch to exploded dataset [2026-0526](https://huggingface.co/datasets/keisuke-miyako/legal-euro-2026-0525/settings) 
 
 ```
-Original rows: 17808
+Original rows : 17808
 Exploded rows : 84413
 Expansion     : 4.74x
 ```
