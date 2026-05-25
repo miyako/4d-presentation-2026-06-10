@@ -225,6 +225,13 @@ max grad. norm. : 1.0
 
 Ask <img width="12" height="12" alt="claude-logo" src="https://github.com/user-attachments/assets/7f11737c-c2eb-4b6f-a025-a02d12ef998d" /> for advice: https://claude.ai/share/8966219c-ddc0-4dbd-9e4c-7546e578c325
 
+|Relevance|Min|Max|Average|
+|:-:|-:|-:|-:|
+|`3`|`0.39`|`0.76`|`0.58`
+|`2`|`0.17`|`0.71`|`0.50`
+|`1`|`0.25`|`0.64`|`0.46`
+|`0`|`0.14`|`0.47`|`0.32`
+
 - Switch to reranker generated dataset `18794` rows
 - Restore `dense` layer
 - Reduce epochs
