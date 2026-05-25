@@ -196,7 +196,6 @@ gradient accum. : 1
 warmup          : 0.05
 rank            : 64
 alpha           : 64↓
-lr scheduler    : cosine
 group size      : 5↓
 max grad. norm. : 1.0
 ```
@@ -226,9 +225,7 @@ gradient accum. : 1
 warmup          : 0.05
 rank            : 64
 alpha           : 64
-lr scheduler    : cosine
 group size      : 6
-max grad. norm. : 1.0
 ```
 
 <img width="500" height="auto" alt="training-loss" src="https://github.com/user-attachments/assets/e4e62b74-20e7-4c24-9606-049c02f00113" />
@@ -254,9 +251,7 @@ gradient accum. : 1
 warmup          : 0.05
 rank            : 128↑
 alpha           : 128↑
-lr scheduler    : cosine
 group size      : 6
-max grad. norm. : 1.0
 ```
 
 <img width="500" height="auto" alt="training-loss" src="https://github.com/user-attachments/assets/d9e64562-b6ff-4ee5-8e35-2c5697e09c59" />
@@ -276,9 +271,7 @@ gradient accum. : 1
 warmup          : 0.05
 rank            : 128
 alpha           : 128
-lr scheduler    : cosine
 group size      : 4
-max grad. norm. : 1.0
 ```
 
 > [!TIP]
@@ -303,5 +296,5 @@ epochs          : 3↓
 temperature     : 0.02↓
 rank            : 128
 alpha           : 128
-group size      : 4↓
+group size      : 4
 ```
