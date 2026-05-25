@@ -252,3 +252,6 @@ lr scheduler    : cosine
 group size      : 6↑
 max grad. norm. : 1.0
 ```
+
+<img width="500" height="auto" alt="training-loss-2" src="https://github.com/user-attachments/assets/085b526e-fb4d-4f41-bdcb-94e985cce42d" />
+
