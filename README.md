@@ -237,6 +237,10 @@ max grad. norm. : 1.0+
 
 Ask <img width="12" height="12" alt="claude-logo" src="https://github.com/user-attachments/assets/7f11737c-c2eb-4b6f-a025-a02d12ef998d" /> for advice: https://claude.ai/share/bc471893-e83a-4969-8c54-5f9cd1dce6cd
 
+- Positives went down, not up; sign of partial catastrophic forgetting or loss imbalance: not good
+- Learning rate is too aggressive: not good
+- The spread doubled: good
+
 #### Round 6 (r16)
 
 ```
