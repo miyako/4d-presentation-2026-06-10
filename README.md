@@ -279,6 +279,6 @@ group size      : 6
 max grad. norm. : 1.0
 ```
 
-<img width="1500" height="750" alt="training-loss" src="https://github.com/user-attachments/assets/e4e62b74-20e7-4c24-9606-049c02f00113" />
+<img width="500" height="auto" alt="training-loss" src="https://github.com/user-attachments/assets/e4e62b74-20e7-4c24-9606-049c02f00113" />
 
 Ask <img width="12" height="12" alt="claude-logo" src="https://github.com/user-attachments/assets/7f11737c-c2eb-4b6f-a025-a02d12ef998d" /> https://claude.ai/share/51cd7ae2-c0a4-4d9e-8d56-dbe458afb52a
