@@ -116,6 +116,9 @@ Ask <img width="12" height="12" alt="claude-logo" src="https://github.com/user-a
 
 ## Option 2: Train on RunPod
 
+> [!TIP]
+> When training is conducted across multiple GPUs (`negatives_cross_device`), each query is compared against its own 1 positive, its own 6 hard negatives, PLUS the passages sitting on the other GPU (which act as extra "in-batch negatives").
+
 #### Round 3 (r13)
 
 ```
@@ -123,6 +126,7 @@ learning rate:  : 5e-6↓
 epochs          : 2
 batch/device    : 8↑
 gpu             : 3↑
+group size      : 5
 ```
 
 <img width="500" height="auto" alt="training-loss" src="https://github.com/user-attachments/assets/98e36ab6-5c5c-4ad7-8086-45c6fee996ed" />
@@ -153,6 +157,7 @@ warmup          : 0.05↓
 rank            : 64↑
 alpha           : 128↑
 lr scheduler    : cosine
+group size      : 7↑
 ```
 
 #### Round 5 (r15)
