@@ -158,5 +158,5 @@ lr scheduler    : cosine
 #### Round 5 (r15)
 
 ```
-max grad. norm : 1.0
+max grad. norm. : 1.0
 ```
