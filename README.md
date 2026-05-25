@@ -330,3 +330,18 @@ https://claude.ai/share/56a29d4d-e6b8-4e20-8a29-68a14afa4007
 |`2`|`0.34`|`0.77`|`0.60`
 |`1`|`0.39`|`0.73`|`0.57`
 |`0`|`0.30`|`0.63`|`0.48`
+
+#### Round 13 (r23)
+
+```
+learning rate:  : 5e-6↑
+neg. device     : False
+self distill    : False
+max_grad_norm   : 0.5↓
+gradient accum. : 1
+epochs          : 2
+temperature     : 0.05↑
+rank            : 128
+alpha           : 128
+group size      : 4
+```
