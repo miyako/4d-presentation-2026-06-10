@@ -274,6 +274,9 @@ alpha           : 128
 group size      : 4
 ```
 
+<img width="500" height="auto" alt="training-loss" src="https://github.com/user-attachments/assets/519a6d49-8ddc-4390-8356-c9f952ee368d" />
+
+
 > [!TIP]
 > `grad_accum` has the effect of making a single GPU do the job of multiple GPUs simultaneously; for example, `grad_accum=4` means the GPU runs 4 batches and averages the accumulated weights. With 4 GPUs, the work could be done simultaneously. Setting `negatives_cross_device` to `False` means each GPU will work with the batch it has been assigned. It will typically see fewer negatives for each positive. Setting `negatives_cross_device` to `True` means each GPU will also see the negatives assigned to other GPUs. The idea is weigh the position in relation to a diverse set of negatives. The mode is effective when training with a wide variety of data. It may backfire when training with a narrow, domain specific dataset.
 
