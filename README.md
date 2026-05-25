@@ -122,7 +122,7 @@ Ask <img width="12" height="12" alt="claude-logo" src="https://github.com/user-a
 #### Round 3 (r13)
 
 ```
-learning rate:  : 5e-6↓
+learning rate:  : 5e-6↑
 epochs          : 2
 batch/device    : 8↑
 gpu             : 3↑
@@ -219,7 +219,7 @@ Ask <img width="12" height="12" alt="claude-logo" src="https://github.com/user-a
 #### Round 5 (r15)
 
 ```
-learning rate:  : 3e-5↓
+learning rate:  : 3e-5↑
 epochs          : 3
 batch/device    : 32
 gpu             : 4↑
@@ -231,4 +231,21 @@ alpha           : 128
 lr scheduler    : cosine
 group size      : 7
 max grad. norm. : 1.0+
+```
+
+#### Round 6 (r16)
+
+```
+learning rate:  : 5e-6↓
+epochs          : 5↑
+batch/device    : 32
+gpu             : 4
+target modules  : query, key, value
+gradient accum. : 1
+warmup          : 0.05
+rank            : 64
+alpha           : 64↓
+lr scheduler    : cosine
+group size      : 5↓
+max grad. norm. : 1.0
 ```
