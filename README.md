@@ -227,10 +227,10 @@ Ask <img width="12" height="12" alt="claude-logo" src="https://github.com/user-a
 
 |Relevance|Min|Max|Average|
 |:-:|-:|-:|-:|
-|`3`|`0.39`|`0.76`|`0.58`
-|`2`|`0.17`|`0.71`|`0.50`
-|`1`|`0.25`|`0.64`|`0.46`
-|`0`|`0.14`|`0.47`|`0.32`
+|`3`|`0.27`|`0.76`|`0.56`
+|`2`|`0.15`|`0.77`|`0.50`
+|`1`|`0.27`|`0.69`|`0.46`
+|`0`|`0.14`|`0.53`|`0.31`
 
 - Switch to reranker generated dataset `18794` rows
 - Restore `dense` layer
