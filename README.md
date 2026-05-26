@@ -371,3 +371,12 @@ group size      : 4
 |`0`|`0.30`|`0.62`|`0.44`
 
 Spread: `17`
+
+#### Round 18 (r28)
+
+**MNRL** - Multiple Negatives Ranking Loss
+
+> [!NOTE]
+> MNRL separates the 0-relevance documents away, creating a clean threshold.
+
+<img width="500" height="auto" alt="training-loss" src="https://github.com/user-attachments/assets/ed579d30-3b64-45b0-b1f7-c66d51fb7585" />
