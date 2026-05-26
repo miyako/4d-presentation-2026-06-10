@@ -359,7 +359,7 @@ group size      : 4
 **GIST** - Cached Guided In-batch Negative Selection
 
 > [!NOTE]
-> GIST's guide model suppresses false negatives, which can compress the score range without hurting ranking.
+> GIST filters false negatives via a frozen guide model.
  
 <img width="500" height="auto" alt="training-loss-2" src="https://github.com/user-attachments/assets/4be5da55-af94-413d-8cb1-b98037cfe6ae" />
 
@@ -377,6 +377,15 @@ Spread: `17`
 **MNRL** - Multiple Negatives Ranking Loss
 
 > [!NOTE]
-> MNRL separates the 0-relevance documents away, creating a clean threshold.
+> MNRL uses all other positives and negatives in the batch as in-batch negatives.
 
 <img width="500" height="auto" alt="training-loss" src="https://github.com/user-attachments/assets/ed579d30-3b64-45b0-b1f7-c66d51fb7585" />
+
+|Relevance|Min|Max|Average|
+|:-:|-:|-:|-:|
+|`3`|`0.06`|`0.70`|`0.44`
+|`2`|`-0.08`|`0.67`|`0.36`
+|`1`|`0.00`|`0.62`|`0.31`
+|`0`|`-0.08`|`0.40`|`0.11`
+
+Spread: `33`
