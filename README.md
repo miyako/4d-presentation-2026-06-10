@@ -389,3 +389,10 @@ Spread: `17`
 |`0`|`-0.08`|`0.40`|`0.11`
 
 Spread: `33`
+
+#### Round 19 (r29)
+
+**MNSRL** - Multiple Negatives Symmetric Ranking Loss
+
+> [!NOTE]
+> MNRL treats the positive as an anchor in the reverse direction.
