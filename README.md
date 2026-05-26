@@ -358,3 +358,11 @@ group size      : 4
 
 <img width="500" height="auto" alt="training-loss-2" src="https://github.com/user-attachments/assets/4be5da55-af94-413d-8cb1-b98037cfe6ae" />
 
+|Relevance|Min|Max|Average|
+|:-:|-:|-:|-:|
+|`3`|`0.40`|`0.79`|`0.61`
+|`2`|`0.34`|`0.77`|`0.56`
+|`1`|`0.34`|`0.72`|`0.53`
+|`0`|`0.30`|`0.62`|`0.44`
+
+Spread: `17`
