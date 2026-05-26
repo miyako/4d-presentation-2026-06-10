@@ -358,6 +358,9 @@ group size      : 4
 
 **GIST** - Cached Guided In-batch Negative Selection
 
+> [!NOTE]
+> GIST's guide model suppresses false negatives, which can compress the score range without hurting ranking.
+ 
 <img width="500" height="auto" alt="training-loss-2" src="https://github.com/user-attachments/assets/4be5da55-af94-413d-8cb1-b98037cfe6ae" />
 
 |Relevance|Min|Max|Average|
