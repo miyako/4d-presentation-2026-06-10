@@ -351,3 +351,10 @@ group size      : 4
 |`2`|`0.00`|`0.69`|`0.43`
 |`1`|`0.14`|`0.63`|`0.38`
 |`0`|`0.02`|`0.45`|`0.22`
+
+---
+
+#### Round 17 (r27)
+
+<img width="500" height="auto" alt="training-loss-2" src="https://github.com/user-attachments/assets/4be5da55-af94-413d-8cb1-b98037cfe6ae" />
+
