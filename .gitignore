@@ -1,0 +1,4 @@
+embeddings/Project/DerivedData/*
+embeddings/userPreferences.*
+embeddings/secrets/*
+embeddings/Data/*
