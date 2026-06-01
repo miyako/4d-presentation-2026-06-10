@@ -13,3 +13,4 @@ Test cosine similarity
 |Mistral|`mistral-embed`|`0.8800359207449`|`0.7896794842653`
 |Google|`gemini-embedding-001`|`0.7856997896712`|`0.6591593431416`
 |Jina|`jina-embeddings-v5-text-small`|`0.7957916859642`|`0.5331879498877`
+|NVIDIA|`nvidia/nv-embed-v1`|`0.6504189071027`|`0.2753398975052`
