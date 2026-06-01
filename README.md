@@ -21,3 +21,4 @@ Test cosine similarity (local)
 ||Model|The EMS took the...|He sat by the bank of....||
 |-|-|-:|-:|-:
 |Google|`embeddinggemma-300m`|`0.823125809961`|`0.6005312734492`|
+|BAAI|`bge-m3`|`0.7620673793062`|`0.5429022159838`|
