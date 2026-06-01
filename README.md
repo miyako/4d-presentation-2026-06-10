@@ -25,3 +25,4 @@ Test cosine similarity (local)
 |IBM|`granite-embedding-311m-multilingual-r2`|`0.8995000155276`|`0.9024163112775`|May 2026
 |JHU|`ettin-encoder-400m`|`0.9914190574350`|`0.9670910944748`|Jul 2025
 |Nomic|`nomic-embed-text-v2-moe`|`0.6332263233029`|`0.4085057202734`|Feb 2025
+|Microsoft|`multilingual-e5-base`|`0.9219811054545`|`0.7896724295248`|Dec 2022
