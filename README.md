@@ -9,4 +9,4 @@ Test cosine similarity
 ||Model|The EMS took the...|He sat by the bank of....
 |-|-|-:|-:|
 |OpenAI|`text-embedding-3-small`|`0.6704454409872`|`0.3636059621919`|
-|||
+|Cohere|`embed-v4.0`|`0.5680866656986`|`0.3490104785412`
