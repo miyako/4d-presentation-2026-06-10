@@ -12,9 +12,12 @@ Class constructor($_provider : Text)
 	This:C1470._provider:=$_provider
 	This:C1470._baseURLs:={\
 		Cohere: "https://api.cohere.ai/compatibility/v1"; \
+		Jina: "https://api.jina.ai/v1"; \
 		Gemini: "https://generativelanguage.googleapis.com/v1beta/openai"; \
+		Mistral: "https://api.mistral.ai/v1"; \
+		NVIDIA: "https://integrate.api.nvidia.com/v1"; \
 		OpenAI: ""; \
-		xAI: "https://api.x.ai/v1"}
+		Voyage: "https://api.voyageai.com/v1"}
 	
 	This:C1470.baseURL:=This:C1470._baseURLs[This:C1470._provider]
 	

@@ -23,5 +23,5 @@ End if
 
 Case of 
 	: ($params.embeddings)
-		ALERT:C41("Embeddings model loaded!")
+		//ALERT("Embeddings model loaded!")
 End case 
