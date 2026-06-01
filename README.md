@@ -15,3 +15,9 @@ Test cosine similarity (remote)
 |NVIDIA|[`nvidia/nv-embed-v1`](https://docs.api.nvidia.com/nim/reference/nvidia-nv-embed-v1)|`0.6504189071027`|`0.2753398975052`|May 2024
 |OpenAI|[`text-embedding-3-small`](https://openai.com/index/new-embedding-models-and-api-updates/)|`0.6704454409872`|`0.3636059621919`|Jan 2024
 |Voyage|[`voyage-4`](https://blog.voyageai.com/2026/01/15/voyage-4/)|`0.6653823420156`|`0.4358637816462`|Jan 2026
+
+Test cosine similarity (local)
+
+||Model|The EMS took the...|He sat by the bank of....||
+|-|-|-:|-:|-:
+|Google|`embeddinggemma-300m`|`0.823125809961`|`0.6005312734492`|
