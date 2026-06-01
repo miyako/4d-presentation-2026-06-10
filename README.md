@@ -20,7 +20,8 @@ Test cosine similarity (local)
 
 ||Model|The EMS took the...|He sat by the bank of....||
 |-|-|-:|-:|-:
-|Google|`embeddinggemma-300m`|`0.8231258099610`|`0.6005312734492`|
-|BAAI|`bge-m3`|`0.7620673793062`|`0.5429022159838`|
-|IBM|`granite-embedding-311m-multilingual-r2`|`0.8995000155276`|`0.9024163112775`|
-|JHU|`ettin-encoder-400m`|`0.9914190574350`|`0.9670910944748`
+|Google|[`embeddinggemma-300m`](https://developers.googleblog.com/en/introducing-embeddinggemma/)|`0.8231258099610`|`0.6005312734492`|Sep 2025
+|BAAI|`bge-m3`|`0.7620673793062`|`0.5429022159838`|Jan 2024
+|IBM|`granite-embedding-311m-multilingual-r2`|`0.8995000155276`|`0.9024163112775`|May 2026
+|JHU|`ettin-encoder-400m`|`0.9914190574350`|`0.9670910944748`|Jul 2025
+|Nomic|`nomic-embed-text-v2-moe`|`0.6332263233029`|`0.4085057202734`|Feb 2025
