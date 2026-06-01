@@ -4,7 +4,7 @@
 
 ## embeddings project
 
-Test cosine similarity
+Test cosine similarity (remote)
 
 ||Model|The EMS took the...|He sat by the bank of....
 |-|-|-:|-:|
