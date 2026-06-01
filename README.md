@@ -14,3 +14,4 @@ Test cosine similarity (remote)
 |Google|`gemini-embedding-001`|`0.7856997896712`|`0.6591593431416`
 |Jina|`jina-embeddings-v5-text-small`|`0.7957916859642`|`0.5331879498877`
 |NVIDIA|`nvidia/nv-embed-v1`|`0.6504189071027`|`0.2753398975052`
+|Voyage|`voyage-4`|`0.6653823420156`|`0.4358637816462`
