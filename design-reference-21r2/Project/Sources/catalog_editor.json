@@ -1,0 +1,54 @@
+{
+	"tables": {
+		"Passage": {
+			"color": {
+				"red": 255,
+				"green": 255,
+				"blue": 255,
+				"alpha": 0
+			},
+			"coordinates": {
+				"left": 254.96484375,
+				"top": 291.01953125,
+				"width": 120,
+				"height": 167.33203125
+			},
+			"displayable_fields_count": 6,
+			"fields": {
+				"hash": {
+					"color": {
+						"red": 255,
+						"green": 255,
+						"blue": 255,
+						"alpha": 0
+					}
+				}
+			}
+		},
+		"Document": {
+			"color": {
+				"red": 255,
+				"green": 255,
+				"blue": 255,
+				"alpha": 0
+			},
+			"coordinates": {
+				"left": 426.33203125,
+				"top": 194.20703125,
+				"width": 120,
+				"height": 167.33203125
+			},
+			"displayable_fields_count": 6
+		}
+	},
+	"relations": {
+		"528CC67102AB42E98C1704D317F843C0": {
+			"color": {
+				"red": 30,
+				"green": 30,
+				"blue": 30,
+				"alpha": 0
+			}
+		}
+	}
+}
