@@ -27,6 +27,7 @@ Test cosine similarity (local)
 |IBM|`granite-embedding-english-r2`|`0.9168888742887`|`0.7906757326866`|Aug 2025
 |JHU|`ettin-encoder-400m`|`0.9914190574350`|`0.9670910944748`|Jul 2025
 |Microsoft|`multilingual-e5-base`|`0.9219811054545`|`0.7896724295248`|Dec 2022
-|Microsoft|`e5-base-v2`|`0.9272583449536`|`0.7394167512544`|Dev 2022
+|Microsoft|[`e5-base-v2`](https://huggingface.co/intfloat/e5-base-v2)|`0.9272583449536`|`0.7394167512544`|Dec 2022
 |Nomic|`nomic-embed-text-v2-moe`|`0.6332263233029`|`0.4085057202734`|Feb 2025
 |Nomic|[`nomic-embed-text-v1.5`](https://www.nomic.ai/news/nomic-embed-matryoshka)|`0.8346119269962`|`0.5344995632986`|Feb 2024
+|Snowflake|[`snowflake-arctic-embed-l-v2.0`](https://www.snowflake.com/en/blog/engineering/snowflake-arctic-embed-2-multilingual/)|`0.7543962955285`|`0.5548135169332`|Dec 2024
