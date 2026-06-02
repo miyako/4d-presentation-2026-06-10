@@ -1,3 +1,7 @@
+## Initial Draft 
+
+Prompt an LLM to generate the prompt:
+
 ```
 write for me a system prompt for a frontier LLM to generate synthetic queries to fine-tune an embedding model. the primary objective is to generate queries that force maximum separation between relevant, partially relevant, most irrelevant, and completely irrelevant passages. the corpus to query are all technical articles about a specific software product, "4D". 
 
@@ -9,3 +13,15 @@ the prompt should instruct the LLM to generate structured output, a JSON array w
 "language"		ISO 639-1 code (2 letters)
 "rele
 ```
+
+## Edits
+
+- Add "escape hatch"
+
+> ![NOTE]
+> Without a way out, the model might generate bad output when given a genuinely confused input. 
+ 
+- Add "few-shot examples" for JSON
+
+> [!TIP]
+> The `v1/batch` endpoint does not support structured output so it is important to nudge the model with examples.
