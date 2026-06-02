@@ -3,6 +3,7 @@ var $client : cs:C1710.AIKit.OpenAI
 $client:=cs:C1710.AIKit.OpenAI.new({baseURL: "http://127.0.0.1:"+String:C10(Storage:C1525.port.embeddings)+"/v1"})
 
 $query:="text input <?[TableName]FieldName>"
+$query:="list box create hierarchy context menu columns"
 
 var $params : cs:C1710.AIKit.OpenAIEmbeddingsParameters
 $params:=cs:C1710.AIKit.OpenAIEmbeddingsParameters.new()
