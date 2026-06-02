@@ -5,6 +5,7 @@ var $systemPrompt; $userPrompt; $userPromptTemplate : Text
 $systemPrompt:=$folder.file("system.txt").getText()
 $userPromptTemplate:=$folder.file("user.txt").getText()
 
+var $jsonl : Object
 $jsonl:={requests: []}
 
 var $passages : cs:C1710.PassageSelection
@@ -12,6 +13,7 @@ var $passage : cs:C1710.PassageEntity
 $passages:=ds:C1482.Passage.query("searches == null")
 
 For each ($passage; $passages)
+	var $name; $language : Text
 	$name:=$passage.document.file.name
 	ARRAY LONGINT:C221($pos; 0)
 	ARRAY LONGINT:C221($len; 0)
@@ -20,9 +22,11 @@ For each ($passage; $passages)
 	Else 
 		$language:="en"
 	End if 
+	var $text; $version : Text
 	$text:=$passage.text
 	$version:="21R2"
 	PROCESS 4D TAGS:C816($userPromptTemplate; $userPrompt; {text: $text; language: $language; version: $version})
+	var $json : Object
 	$json:={params: {}}
 	$json.custom_id:="passage-"+String:C10($passage.getKey())
 	$json.params.model:="claude-sonnet-4-6"  //need strong reasoning

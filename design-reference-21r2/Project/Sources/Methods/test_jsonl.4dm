@@ -26,6 +26,7 @@ Else
 			return 
 		End if 
 		
+		var $name; $language; $text; $version : Text
 		$name:=$passage.document.file.name
 		ARRAY LONGINT:C221($pos; 0)
 		ARRAY LONGINT:C221($len; 0)
@@ -64,10 +65,13 @@ Else
 					$model:="bge-m3"
 					var $params : cs:C1710.AIKit.OpenAIEmbeddingsParameters
 					$params:=cs:C1710.AIKit.OpenAIEmbeddingsParameters.new()
+					var $batch : Object
 					$batch:=$client.embeddings.create($results.extract("text"); $model; $params)
 					If ($batch.success)
+						var $embeddings : Collection
 						$embeddings:=$batch.embeddings
 						var $search : cs:C1710.SearchEntity
+						var $result : Object
 						For each ($result; $results)
 							$search:=ds:C1482.Search.new()
 							$search.language:=$result.language
