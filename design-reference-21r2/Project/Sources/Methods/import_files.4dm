@@ -22,6 +22,8 @@ For each ($file; $files)
 		Case of 
 			: ($extracted.input.includes("@404 - Not Found"))
 				continue
+			: ($extracted.input.includes("@developer.4d.com/docs@"))
+				continue
 			Else 
 				var $document : cs:C1710.DocumentEntity
 				$document:=ds:C1482.Document.new()
