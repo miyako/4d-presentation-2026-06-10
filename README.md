@@ -20,16 +20,16 @@ Test cosine similarity (local)
 
 ||Model|The EMS took the...|He sat by the bank of....|||
 |-|-|-:|-:|-:|:-:|
-|Alibaba|`gte-modernbert-base`|`0.8514893095917`|`0.5572938027504`|Jan 2025|
-|Alibaba|`Qwen3-Embedding-0.6B`|`0.6822297199881`|`0.4671879068266`|Jun 2025|🌐
-|BAAI|`bge-m3`|`0.7620673793062`|`0.5429022159838`|Jan 2024|🌐
+|Alibaba|[`gte-modernbert-base`](https://huggingface.co/Alibaba-NLP/gte-modernbert-base)|`0.8514893095917`|`0.5572938027504`|Jan 2025|
+|Alibaba|[`Qwen3-Embedding-0.6B`](https://huggingface.co/Qwen/Qwen3-Embedding-0.6B)|`0.6822297199881`|`0.4671879068266`|Jun 2025|🌐
+|BAAI|[`bge-m3`](https://huggingface.co/BAAI/bge-m3)|`0.7620673793062`|`0.5429022159838`|Jan 2024|🌐
 |Google|[`embeddinggemma-300m`](https://developers.googleblog.com/en/introducing-embeddinggemma/)|`0.8231258099610`|`0.6005312734492`|Sep 2025|🌐
-|IBM|`granite-embedding-311m-multilingual-r2`|`0.8995000155276`|`0.9024163112775`|May 2026|🌐
-|IBM|`granite-embedding-english-r2`|`0.9168888742887`|`0.7906757326866`|Aug 2025
-|JHU|`ettin-encoder-400m`|`0.9914190574350`|`0.9670910944748`|Jul 2025|🌐
-|Microsoft|`multilingual-e5-base`|`0.9219811054545`|`0.7896724295248`|Dec 2022|🌐
+|IBM|[`granite-embedding-311m-multilingual-r2`](https://huggingface.co/ibm-granite/granite-embedding-311m-multilingual-r2)|`0.8995000155276`|`0.9024163112775`|May 2026|🌐
+|IBM|[`granite-embedding-english-r2`](https://huggingface.co/ibm-granite/granite-embedding-english-r2)|`0.9168888742887`|`0.7906757326866`|Aug 2025
+|JHU|[`ettin-encoder-400m`](https://huggingface.co/jhu-clsp/ettin-encoder-400m)|`0.9914190574350`|`0.9670910944748`|Jul 2025|🌐
+|Microsoft|[`multilingual-e5-base`](https://huggingface.co/intfloat/multilingual-e5-base)|`0.9219811054545`|`0.7896724295248`|Dec 2022|🌐
 |Microsoft|[`e5-base-v2`](https://huggingface.co/intfloat/e5-base-v2)|`0.9272583449536`|`0.7394167512544`|Dec 2022
-|Nomic|`nomic-embed-text-v2-moe`|`0.6332263233029`|`0.4085057202734`|Feb 2025|🌐
+|Nomic|[`nomic-embed-text-v2-moe`](https://huggingface.co/nomic-ai/nomic-embed-text-v2-moe)|`0.6332263233029`|`0.4085057202734`|Feb 2025|🌐
 |Nomic|[`nomic-embed-text-v1.5`](https://www.nomic.ai/news/nomic-embed-matryoshka)|`0.8346119269962`|`0.5344995632986`|Feb 2024
 |Snowflake|[`snowflake-arctic-embed-l-v2.0`](https://www.snowflake.com/en/blog/engineering/snowflake-arctic-embed-2-multilingual/)|`0.7543962955285`|`0.5548135169332`|Dec 2024|🌐
-|Snowflake|`snowflake-arctic-embed-l`|`0.8680784582381`|`0.6961994192399`|Apr 2024|
+|Snowflake|[`snowflake-arctic-embed-l`](https://www.snowflake.com/en/blog/engineering/introducing-snowflake-arctic-embed-snowflakes-state-of-the-art-text-embedding-family-of-models/)|`0.8680784582381`|`0.6961994192399`|Apr 2024|
