@@ -31,3 +31,4 @@ Test cosine similarity (local)
 |Nomic|`nomic-embed-text-v2-moe`|`0.6332263233029`|`0.4085057202734`|Feb 2025
 |Nomic|[`nomic-embed-text-v1.5`](https://www.nomic.ai/news/nomic-embed-matryoshka)|`0.8346119269962`|`0.5344995632986`|Feb 2024
 |Snowflake|[`snowflake-arctic-embed-l-v2.0`](https://www.snowflake.com/en/blog/engineering/snowflake-arctic-embed-2-multilingual/)|`0.7543962955285`|`0.5548135169332`|Dec 2024
+|Alibaba|`gte-modernbert-base`|`0.8514893095917`|`0.5572938027504`|
