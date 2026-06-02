@@ -25,3 +25,10 @@ the prompt should instruct the LLM to generate structured output, a JSON array w
 
 > [!TIP]
 > The `v1/batch` endpoint does not support structured output so it is important to nudge the model with examples.
+
+## Batch
+
+If you have a large volume of similar requests and not in a rush, you can save API costs significantly by using the `v1/batch` endpoint.
+
+- **Anthropic**: [Batch processing](https://platform.claude.com/docs/en/build-with-claude/batch-processing)
+- **OpenAI**: [Batch API](https://developers.openai.com/api/docs/guides/batch)
