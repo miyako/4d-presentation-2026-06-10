@@ -19,6 +19,7 @@ Case of
 		If ($event.objectName="rul.threshold") && (Form:C1466.vector#Null:C1517)
 			
 			var $comparison:={vector: Form:C1466.vector; metric: mk cosine:K95:1; threshold: Form:C1466.threshold}
+			var $documents : cs:C1710.DocumentSelection
 			$documents:=ds:C1482.Document.query("passages.embeddings > :1"; $comparison)
 			Form:C1466.documents:={col: Null:C1517; sel: Null:C1517; item: Null:C1517; pos: Null:C1517}
 			Form:C1466.documents.col:=$documents

@@ -33,9 +33,11 @@ For each ($file; $files)
 				var $cosineSimilarity : Real
 				var $params : cs:C1710.AIKit.OpenAIEmbeddingsParameters
 				$params:=cs:C1710.AIKit.OpenAIEmbeddingsParameters.new()
+				var $batch : Object
 				$batch:=$client.embeddings.create($extracted.input; $model; $params)
 				If ($batch.success)
 					$embeddings:=$batch.embeddings
+					var $text : Text
 					For each ($text; $extracted.input)
 						var $passage : cs:C1710.PassageEntity
 						$passage:=ds:C1482.Passage.new()

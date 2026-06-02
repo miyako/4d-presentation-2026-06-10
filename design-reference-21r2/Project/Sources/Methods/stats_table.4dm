@@ -8,6 +8,7 @@ For each ($search; $searches)
 End for each 
 
 var $stats:=["|Relevance|Min|Max|Average|"; "|:-:|-:|-:|-:|"]
+var $count; $relevance : Integer
 $count:=ds:C1482.Search.getCount()
 
 For each ($relevance; [3; 2; 1; 0])

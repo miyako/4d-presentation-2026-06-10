@@ -33,6 +33,11 @@ var $max_position_embeddings; $batch_size; $parallel; $threads; $batches : Integ
 
 $URL:="keisuke-miyako/bge-m3-gguf-q8_0"
 
+var $pooling; $cache_type_k; $cache_type_v : Text
+var $ubatch_size; $n_gpu_layers : Integer
+var $threads_batch : Integer
+var $options : Object
+
 $pooling:="cls"
 $ubatch_size:=512  //max_position_embeddings=8194, but for better granularity
 $n_gpu_layers:=-1
