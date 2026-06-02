@@ -40,13 +40,13 @@ curl https://api.anthropic.com/v1/messages/batches \
   --header "x-api-key: sk-***" \
   --header "anthropic-version: 2023-06-01" \
   --header "content-type: application/json" \
-  --data-binary @/Users/miyako/Desktop/0-6.jsonl
+  --data-binary @data.jsonl
 ```
 
 - Response
 
 ```sh
-{"id":"msgbatch_01VTw9gMkYA9XhLwhbu2dEDw","type":"message_batch","processing_status":"in_progress","request_counts":{"processing":7,"succeeded":0,"errored":0,"canceled":0,"expired":0},"ended_at":null,"created_at":"2026-06-02T15:03:37.719714+00:00","expires_at":"2026-06-03T15:03:37.719714+00:00","archived_at":null,"cancel_initiated_at":null,"results_url":null}
+{"id":"msgbatch_01TNa6ezMRBbdNLDdFuj4vTY","type":"message_batch","processing_status":"in_progress","request_counts":{"processing":6916,"succeeded":0,"errored":0,"canceled":0,"expired":0},"ended_at":null,"created_at":"2026-06-02T18:27:34.215733+00:00","expires_at":"2026-06-03T18:27:34.215733+00:00","archived_at":null,"cancel_initiated_at":null,"results_url":null}
 ```
 
 - Ststus (GET)
@@ -59,6 +59,6 @@ curl https://api.anthropic.com/v1/messages/batches/msgbatch_01VTw9gMkYA9XhLwhbu2
 
 - Response
 
-```sh
-
+```json
+{"id":"msgbatch_01TNa6ezMRBbdNLDdFuj4vTY","type":"message_batch","processing_status":"in_progress","request_counts":{"processing":6916,"succeeded":0,"errored":0,"canceled":0,"expired":0},"ended_at":null,"created_at":"2026-06-02T18:27:34.215733+00:00","expires_at":"2026-06-03T18:27:34.215733+00:00","archived_at":null,"cancel_initiated_at":null,"results_url":null}
 ```
