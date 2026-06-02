@@ -5,3 +5,4 @@ embeddings/Data/*
 design-reference-21r2/Data/*
 design-reference-21r2/userPreferences.*
 design-reference-21r2/Project/DerivedData/*
+design-reference-21r2/secrets/Claude.token
