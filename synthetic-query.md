@@ -18,7 +18,7 @@ the prompt should instruct the LLM to generate structured output, a JSON array w
 
 - Add "escape hatch"
 
-> ![NOTE]
+> [!WARNING]
 > Without a way out, the model might generate bad output when given a genuinely confused input. 
  
 - Add "few-shot examples" for JSON
