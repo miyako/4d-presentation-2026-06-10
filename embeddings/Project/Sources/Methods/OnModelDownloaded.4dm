@@ -17,11 +17,17 @@ Case of
 End case 
 
 If (Not:C34($file.exists))
-	ALERT:C41("model does not exist!")
+/*
+$file is Null if the Hugging Face URL and/or file name is incorrect.
+*/
 	return 
 End if 
 
 Case of 
 	: ($params.embeddings)
-		//ALERT("Embeddings model loaded!")
+/*
+$file is either the local copy from a previous session or model just downloaded.
+$params is the $options object you passed to cs.llama.llama.new().
+.embeddings==True if you specified an embeddings model.
+*/
 End case 
