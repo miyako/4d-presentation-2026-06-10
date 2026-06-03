@@ -21,6 +21,11 @@ var $batch; $count : Integer
 $batch:=100
 $count:=$rerankerFolder.folders().length
 
+var $negativeThreshold; $positiveThreshold; $hardNegativeThreshold : Real
+$negativeThreshold:=0.65  //0.55 might be too aggressive?
+$positiveThreshold:=0.85  //0.75 might be too loose?
+$hardNegativeThreshold:=0.35
+
 //some queries are identical
 var $hashes : Collection
 $hashes:=ds:C1482.Search.all().distinct("hash")
@@ -42,11 +47,8 @@ While ($count*$batch<$hashes.length)
 				continue
 			End if 
 			
-			var $search : cs:C1710.SearchEntity
-			$search:=$searches.first()
-			
-			var $embedding : Object
-			$embedding:=$search.embeddings
+			var $embeddings : Collection
+			$embeddings:=$searches.embeddings
 			var $positivePassages : cs:C1710.PassageSelection
 			$positivePassages:=$searches.passage
 			
@@ -62,75 +64,92 @@ While ($count*$batch<$hashes.length)
 			If ($positivePassages.length=0)
 				continue
 			End if 
-			//the training framework usually takes care of duplicate positives, but for hygine
-			$positives:=$positivePassages.text.distinct()
-			//deduplication to prevent positive/negative overlap
-			var $positiveHashes : Collection
-			$positiveHashes:=$positivePassages.hash.distinct()
+			var $positiveHashes; $negativeHashes : Collection
+			$positiveHashes:=[]
+			$negativeHashes:=[]
+			var $positivePassage : cs:C1710.PassageEntity
+			For each ($positivePassage; $positivePassages)
+				If ($positiveHashes.indexOf($positivePassage.hash)=-1)
+					$positiveHashes.push($positivePassage.hash)
+					$positives.push($positivePassage.text)
+				End if 
+			End for each 
 			//cast a wide net with low threshold
-			var $comparison:={vector: $search.embeddings; metric: mk cosine:K95:1; threshold: 0.35}
-			$searches:=ds:C1482.Search.query("embeddings > :1 and relevance < :2 and not(passage.DocumentID in :3) and not(passage.hash in :4)"; \
-				$comparison; $lv; $documentIds; $positiveHashes)
-			var $negativePassages : cs:C1710.PassageSelection
-			$negativePassages:=$searches.passage
-			If ($negativePassages.length=0)
-				//no hard negatives
-				continue
-			End if 
-			var $top_k : Integer
-			$top_k:=7
-			var $f : 4D:C1709.Function
-			$f:=Formula:C1597(This:C1470.embeddings.cosineSimilarity($embedding))
-			$negativePassages:=$negativePassages.orderByFormula($f; dk descending:K85:32).slice(0; $top_k)
-			var $text : Collection
-			$text:=$negativePassages.text
-			var $negativeEmbeddings : Collection
-			$negativeEmbeddings:=$negativePassages.embeddings
-			var $status : Object
-			$status:=$reranker.rerank($search.text; $text)
-			var $negativeThreshold; $positiveThreshold : Real
-			$negativeThreshold:=0.65  //0.55 might be too aggressive?
-			$positiveThreshold:=0.85  //0.75 might be too loose?
-			If ($status.success)
-				var $result : Object
-				For each ($result; $status.results)
-					Case of 
-						: ($result.relevance_score>$negativeThreshold)
-							//prune false negatives
-						Else 
-							var $tooSimilar : Boolean
-							$tooSimilar:=False:C215
-							For each ($passage; $positivePassages)
-								//deduplication against positives
-								If ($passage.embeddings.cosineSimilarity($negativeEmbeddings[$result.index])>$positiveThreshold)
-									$tooSimilar:=True:C214
-									break
-								End if 
-							End for each 
-							If (Not:C34($tooSimilar))
-								$negatives.push($text[$result.index])
-								$negative_relevance_scores.push($result.relevance_score)
-							End if 
-					End case 
-				End for each 
+			var $hardNegatives : cs:C1710.SearchSelection
+			For each ($search; $searches)
+				var $comparison:={vector: $search.embeddings; metric: mk cosine:K95:1; threshold: $hardNegativeThreshold}
 				
-				If ($negatives.length=0)
+				$hardNegatives:=ds:C1482.Search.query("embeddings > :1 and relevance < :2 "+\
+					"    and not(passage.DocumentID in :3) "+\
+					"    and not(passage.hash in :4) "+\
+					"    and not(passage.hash in :5)"; \
+					$comparison; $lv; $documentIds; $positiveHashes; $negativeHashes)
+				
+				var $negativePassages : cs:C1710.PassageSelection
+				$negativePassages:=$hardNegatives.passage
+				If ($negativePassages.length=0)
 					//no hard negatives
 					continue
 				End if 
-				
-				var $jsonl : Object
-				$jsonl:={}
-				$jsonl.query:=$search.text
-				$jsonl.pos:=$positives
-				$jsonl.neg:=$negatives
-				$jsonl.relevance_score:=$negative_relevance_scores
-				
-				$subFolder.file(String:C10($search.getKey(); "0000000")+"-"+String:C10($lv)+".json").setText(JSON Stringify:C1217($jsonl))
-				
-			Else 
+				var $top_k : Integer
+				$top_k:=7
+				var $f : 4D:C1709.Function
+				$f:=Formula:C1597(This:C1470.embeddings.cosineSimilarity($search.embeddings))
+				$negativePassages:=$negativePassages.orderByFormula($f; dk descending:K85:32).slice(0; $top_k)
+				var $text; $negativeHash : Collection
+				$text:=$negativePassages.text
+				$negativeHash:=$negativePassages.hash
+				var $negativeEmbeddings : Collection
+				$negativeEmbeddings:=$negativePassages.embeddings
+				var $status : Object
+				$status:=$reranker.rerank($search.text; $text)
+				If ($status.success)
+					var $result : Object
+					For each ($result; $status.results)
+						Case of 
+							: ($result.relevance_score>$negativeThreshold)
+								//prune false negatives
+							Else 
+								var $tooSimilar : Boolean
+								$tooSimilar:=False:C215
+								For each ($passage; $positivePassages)
+									//deduplication against positives
+									If ($passage.embeddings.cosineSimilarity($negativeEmbeddings[$result.index])>$positiveThreshold)
+										$tooSimilar:=True:C214
+										break
+									End if 
+								End for each 
+								If (Not:C34($tooSimilar))
+									
+									If ($negativeHashes.indexOf($negativeHash[$result.index])=-1)
+										$negativeHashes.push($negativeHash[$result.index])
+										$negatives.push($text[$result.index])
+										$negative_relevance_scores.push($result.relevance_score)
+									End if 
+									
+								End if 
+						End case 
+					End for each 
+				Else 
+					continue
+				End if 
+			End for each 
+			
+			If ($negatives.length=0)
+				//no hard negatives
 				continue
 			End if 
+			
+			var $jsonl : Object
+			$jsonl:={}
+			$jsonl.query:=$searches.first().text
+			$jsonl.pos:=$positives
+			$jsonl.neg:=$negatives
+			$jsonl.relevance_score:=$negative_relevance_scores
+			$jsonl.pos_hash:=$positiveHashes
+			$jsonl.neg_hash:=$negativeHashes
+			
+			$subFolder.file($hash+"-"+String:C10($lv)+".json").setText(JSON Stringify:C1217($jsonl))
 		End for each 
 	End for each 
 	$count:=$rerankerFolder.folders().length
