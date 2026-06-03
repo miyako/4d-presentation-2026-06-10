@@ -24,7 +24,6 @@ $count:=$rerankerFolder.folders().length
 //some queries are identical
 var $hashes : Collection
 $hashes:=ds:C1482.Search.all().distinct("hash")
-//59545
 
 While ($count*$batch<$hashes.length)
 	var $subFolder : 4D:C1709.Folder
@@ -65,12 +64,12 @@ While ($count*$batch<$hashes.length)
 			End if 
 			//the training framework usually takes care of duplicate positives, but for hygine
 			$positives:=$positivePassages.text.distinct()
-			//use this to prevent the same passage appearing as both positive and negative
+			//deduplication to prevent positive/negative overlap
 			var $positiveHashes : Collection
 			$positiveHashes:=$positivePassages.hash.distinct()
 			//cast a wide net with low threshold
 			var $comparison:={vector: $search.embeddings; metric: mk cosine:K95:1; threshold: 0.35}
-			$searches:=ds:C1482.Search.query("embeddings > :1 and relevance != :2 and not(passage.DocumentID in :3) and not(passage.hash in :4)"; \
+			$searches:=ds:C1482.Search.query("embeddings > :1 and relevance < :2 and not(passage.DocumentID in :3) and not(passage.hash in :4)"; \
 				$comparison; $lv; $documentIds; $positiveHashes)
 			var $negativePassages : cs:C1710.PassageSelection
 			$negativePassages:=$searches.passage
@@ -89,19 +88,21 @@ While ($count*$batch<$hashes.length)
 			$negativeEmbeddings:=$negativePassages.embeddings
 			var $status : Object
 			$status:=$reranker.rerank($search.text; $text)
-			var $rerankerThreshold : Real
-			$rerankerThreshold:=0.55
+			var $negativeThreshold; $positiveThreshold : Real
+			$negativeThreshold:=0.65  //0.55 might be too aggressive?
+			$positiveThreshold:=0.85  //0.75 might be too loose?
 			If ($status.success)
 				var $result : Object
 				For each ($result; $status.results)
 					Case of 
-						: ($result.relevance_score>$rerankerThreshold)
-							//possible false negative, remove from training
+						: ($result.relevance_score>$negativeThreshold)
+							//prune false negatives
 						Else 
 							var $tooSimilar : Boolean
 							$tooSimilar:=False:C215
 							For each ($passage; $positivePassages)
-								If ($passage.embeddings.cosineSimilarity($negativeEmbeddings[$result.index])>0.75)
+								//deduplication against positives
+								If ($passage.embeddings.cosineSimilarity($negativeEmbeddings[$result.index])>$positiveThreshold)
 									$tooSimilar:=True:C214
 									break
 								End if 
