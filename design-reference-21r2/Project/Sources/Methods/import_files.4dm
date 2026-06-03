@@ -1,4 +1,14 @@
 //%attributes = {"invisible":true}
+/*
+
+html
+↓↓↓
+txt
+↓↓↓
+4D.Vector
+
+*/
+
 var $client : cs:C1710.AIKit.OpenAI
 $client:=cs:C1710.AIKit.OpenAI.new({baseURL: "http://127.0.0.1:"+String:C10(Storage:C1525.port.embeddings)+"/v1"})
 var $model : Text
@@ -6,7 +16,7 @@ $model:="bge-m3"
 
 var $files : Collection
 $files:=Folder:C1567("/DATA/doc.4d.com/4Dv21R2/").files(fk recursive:K87:7 | fk ignore invisible:K87:22).query("extension == :1"; ".html")
-//635 files
+
 var $file : 4D:C1709.File
 For each ($file; $files)
 	var $task : Object

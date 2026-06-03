@@ -16,15 +16,40 @@ Case of
 		
 	: ($event.code=On Data Change:K2:15)
 		
-		If ($event.objectName="rul.threshold") && (Form:C1466.vector#Null:C1517)
-			
-			var $comparison:={vector: Form:C1466.vector; metric: mk cosine:K95:1; threshold: Form:C1466.threshold}
-			var $documents : cs:C1710.DocumentSelection
-			$documents:=ds:C1482.Document.query("passages.embeddings > :1"; $comparison)
-			Form:C1466.documents:={col: Null:C1517; sel: Null:C1517; item: Null:C1517; pos: Null:C1517}
-			Form:C1466.documents.col:=$documents
-			
-		End if 
+		Case of 
+			: ($event.objectName="query")
+				
+				var $client : cs:C1710.AIKit.OpenAI
+				$client:=cs:C1710.AIKit.OpenAI.new({baseURL: "http://127.0.0.1:"+String:C10(Storage:C1525.port.embeddings)+"/v1"})
+				var $model : Text
+				$model:="bge-m3"
+				
+				var $params : cs:C1710.AIKit.OpenAIEmbeddingsParameters
+				$params:=cs:C1710.AIKit.OpenAIEmbeddingsParameters.new()
+				var $batch : Object
+				$batch:=$client.embeddings.create(Form:C1466.query; $model; $params)
+				
+				If ($batch.success)
+					
+					Form:C1466.vector:=$batch.embedding.embedding
+					$comparison:={vector: Form:C1466.vector; metric: mk cosine:K95:1; threshold: Form:C1466.threshold}
+					$documents:=ds:C1482.Document.query("passages.embeddings > :1"; $comparison)
+					Form:C1466.documents:={col: Null:C1517; sel: Null:C1517; item: Null:C1517; pos: Null:C1517}
+					Form:C1466.documents.col:=$documents
+					
+					GOTO OBJECT:C206(*; $event.objectName)
+					
+				End if 
+				
+			: ($event.objectName="rul.threshold") && (Form:C1466.vector#Null:C1517)
+				
+				var $comparison:={vector: Form:C1466.vector; metric: mk cosine:K95:1; threshold: Form:C1466.threshold}
+				var $documents : cs:C1710.DocumentSelection
+				$documents:=ds:C1482.Document.query("passages.embeddings > :1"; $comparison)
+				Form:C1466.documents:={col: Null:C1517; sel: Null:C1517; item: Null:C1517; pos: Null:C1517}
+				Form:C1466.documents.col:=$documents
+				
+		End case 
 		
 	: ($event.code=On Clicked:K2:4)
 		

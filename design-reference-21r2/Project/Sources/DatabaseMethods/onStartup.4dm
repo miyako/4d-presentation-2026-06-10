@@ -75,3 +75,43 @@ cache_type_v: $cache_type_v}
 $embeddings:=cs:C1710.event.huggingface.new($folder; $URL; $path)
 $huggingfaces:=cs:C1710.event.huggingfaces.new([$embeddings])
 $llama:=cs:C1710.llama.llama.new($port; $huggingfaces; $homeFolder; $options; $event)
+
+$folder:=$homeFolder.folder("ettin-reranker")
+$path:="ettin-reranker-1b-v1-Q8_0.gguf"
+$URL:="keisuke-miyako/ettin-reranker-v1-gguf"
+
+$pooling:="rank"
+$ubatch_size:=1024  //ettin uses more tokens than wen
+$n_gpu_layers:=-1
+$cache_type_k:="f16"
+$cache_type_v:="f16"
+
+$logFile:=$folder.file("llama.log")
+$folder.create()
+If (Not:C34($logFile.exists))
+	$logFile.setContent(4D:C1709.Blob.new())
+End if 
+
+$batches:=10  //may increase with P cores
+$threads:=$batches  //input; tokenisers
+$threads_batch:=1  //output; GPU does the heavy lifting
+
+$port:=Storage:C1525.port.reranker
+$options:={\
+reranking: True:C214; \
+ctx_size: $ubatch_size*$batches; \
+batch_size: $ubatch_size*$batches; \
+ubatch_size: $ubatch_size; \
+parallel: $batches; \
+threads: $threads; \
+threads_batch: $threads_batch; \
+threads_http: $batches+1; \
+log_file: $logFile; \
+log_disable: False:C215; \
+n_gpu_layers: $n_gpu_layers; \
+cache_type_k: $cache_type_k; \
+cache_type_v: $cache_type_v}
+
+$rerank:=cs:C1710.event.huggingface.new($folder; $URL; $path)
+$huggingfaces:=cs:C1710.event.huggingfaces.new([$rerank])
+$llama:=cs:C1710.llama.llama.new($port; $huggingfaces; $homeFolder; $options; $event)

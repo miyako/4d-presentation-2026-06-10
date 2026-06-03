@@ -1,6 +1,13 @@
 //%attributes = {}
 #DECLARE($chatCompletionsResult : cs:C1710.AIKit.OpenAIChatCompletionsResult)
 
+/*
+
+request LLM to generate query examples for training purposes 
+v1/chat/completions
+
+*/
+
 If (Count parameters:C259=0)
 	
 	CALL WORKER:C1389(Current method name:C684; Current method name:C684; {})

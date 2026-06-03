@@ -92,7 +92,7 @@
 					],
 					"focusable": false
 				},
-				"Input": {
+				"query": {
 					"type": "input",
 					"left": 169,
 					"top": 76,
@@ -160,7 +160,7 @@
 			}
 		}
 	],
-	"geometryStamp": 108,
+	"geometryStamp": 115,
 	"editor": {
 		"activeView": "View 1",
 		"defaultView": "View 1",

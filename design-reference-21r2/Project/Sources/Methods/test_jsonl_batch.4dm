@@ -1,4 +1,11 @@
 //%attributes = {}
+/*
+
+request LLM to generate query examples for training purposes 
+v1/batch
+
+*/
+
 var $folder : 4D:C1709.Folder
 $folder:=Folder:C1567("/DATA/prompts/queries")
 var $systemPrompt; $userPrompt; $userPromptTemplate : Text

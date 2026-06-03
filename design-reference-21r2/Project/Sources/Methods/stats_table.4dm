@@ -1,4 +1,10 @@
 //%attributes = {}
+/*
+
+process newly imported queries
+
+*/
+
 var $searches : cs:C1710.SearchSelection
 $searches:=ds:C1482.Search.query("similarity == null")
 var $search : cs:C1710.SearchEntity
@@ -26,16 +32,22 @@ SET TEXT TO PASTEBOARD:C523($stats.join("\r"))
 
 |Relevance|Min|Max|Average|
 |:-:|-:|-:|-:|
-|`3`|`0.37`|`0.83`|`0.63`
-|`2`|`0.33`|`0.78`|`0.59`
-|`1`|`0.29`|`0.75`|`0.55`
+|`3`|`0.36`|`0.83`|`0.63`
+|`2`|`0.32`|`0.78`|`0.59`
+|`1`|`0.23`|`0.76`|`0.55`
 |`0`|`0.23`|`0.70`|`0.42`
 
 what this means
 
 the avg. relevance order is 3 > 2 > 1 > 0 (good)
-and the spread is avg. 21 (good)
-relevant 1 & 0 could be lower 
-relevance 2 & 1 could be further apart
+the spread between lv.3 and lv.0 is pretty wide (good)
+the spread between lv.2 and lv.1 is not very wide (not good)
+lv.1 and lv.0 are relatively high (not good)
+
+what we expect in fine-tuning
+
+widen the spread betwen levels
+retain the ranking
+depress lv.0 even more
 
 */
