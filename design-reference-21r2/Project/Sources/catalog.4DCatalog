@@ -7,6 +7,7 @@
 		<field name="file" uuid="AF71AA1383B84D5E97A4286F07820A22" type="21" blob_switch_size="2147483647" id="2">
 			<field_extra class_id="4D.File"/>
 		</field>
+		<field name="meta" uuid="A58C39616E5C484ABF0D3220D6C70F96" type="21" blob_switch_size="2147483647" id="3"/>
 		<primary_key field_name="ID" field_uuid="74DDBA65A199465B812E5131A0186743"/>
 	</table>
 	<table name="Passage" uuid="C143AD88BAF440798D16D1519D81D168" id="2" prevent_journaling="true">
@@ -81,6 +82,11 @@
 	<index kind="regular" uuid="A257014EA28146C688D505CB40057014" type="3">
 		<field_ref uuid="4D429A80FF98426FBC0EFB6DD35CD9AF" name="PassageID">
 			<table_ref uuid="5953B70661B9472B9AA2E0B9955A3CA7" name="Search"/>
+		</field_ref>
+	</index>
+	<index kind="regular" uuid="A8F336A6626949FAAF3ADB505322598C" type="3">
+		<field_ref uuid="A58C39616E5C484ABF0D3220D6C70F96" name="meta">
+			<table_ref uuid="4D6D0FBAADB4495C8581BBBA0BDC160A" name="Document"/>
 		</field_ref>
 	</index>
 	<index kind="regular" unique_keys="true" uuid="AD6857BD8A6946218D96DE18AF2879C4" type="7">

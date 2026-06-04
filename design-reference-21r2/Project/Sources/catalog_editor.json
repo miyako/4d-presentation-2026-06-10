@@ -10,10 +10,10 @@
 			"coordinates": {
 				"left": 5.03125,
 				"top": 144.30078125,
-				"width": 123.71875,
-				"height": 234.5859375
+				"width": 119,
+				"height": 209.33203125
 			},
-			"displayable_fields_count": 9
+			"displayable_fields_count": 8
 		},
 		"Passage": {
 			"color": {
@@ -25,10 +25,10 @@
 			"coordinates": {
 				"left": 281.3359375,
 				"top": 306.43359375,
-				"width": 120,
-				"height": 167.33203125
+				"width": 124,
+				"height": 146.33203125
 			},
-			"displayable_fields_count": 6,
+			"displayable_fields_count": 5,
 			"fields": {
 				"hash": {
 					"color": {
@@ -48,12 +48,12 @@
 				"alpha": 0
 			},
 			"coordinates": {
-				"left": 614.9609375,
-				"top": 70.90234375,
-				"width": 120,
-				"height": 167.33203125
+				"left": 610.59375,
+				"top": 76.5390625,
+				"width": 116.79296875,
+				"height": 146.71484375
 			},
-			"displayable_fields_count": 6
+			"displayable_fields_count": 5
 		}
 	},
 	"relations": {

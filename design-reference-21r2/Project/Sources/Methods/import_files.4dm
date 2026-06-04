@@ -23,7 +23,7 @@ For each ($file; $files)
 	$task:={file: $file; \
 		text_as_tokens: False:C215; \
 		tokens_length: 509; \
-		overlap_ratio: 0.9; \
+		overlap_ratio: 0.09; \
 		unique_values_only: False:C215; \
 		pooling_mode: Extract Pooling Mode CLS}
 	var $extracted : Object
@@ -38,6 +38,16 @@ For each ($file; $files)
 				var $document : cs:C1710.DocumentEntity
 				$document:=ds:C1482.Document.new()
 				$document.file:=$file
+				ARRAY LONGINT:C221($pos; 0)
+				ARRAY LONGINT:C221($len; 0)
+				var $name : Text
+				$name:=$document.file.name
+				If (Match regex:C1019("\\.([a-z]{2})"; $name; 1; $pos; $len))
+					$language:=Substring:C12($name; $pos{1}; $len{1})
+				Else 
+					$language:="en"
+				End if 
+				$document.meta:={version: "21"; language: $language}
 				$document.save()
 				var $embeddings : Collection
 				var $cosineSimilarity : Real
