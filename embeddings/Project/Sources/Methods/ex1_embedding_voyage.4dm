@@ -19,6 +19,7 @@ var $cosineSimilarity : Real
 
 var $params : cs:C1710.AIKit.OpenAIEmbeddingsParameters
 $params:=cs:C1710.AIKit.OpenAIEmbeddingsParameters.new()
+var $batch : Object
 $batch:=$client.embeddings.create($inputs; $model; $params)
 
 If ($batch.success)

@@ -16,6 +16,11 @@ Case of
 		$file:=$huggingface.folder.file($huggingface[($huggingface.name#"") ? "name" : "path"])
 End case 
 
+If ($params.models_preset#Null:C1517) || ($params.models_dir#Null:C1517)
+	//router model; no model is loaded
+	return 
+End if 
+
 If (Not:C34($file.exists))
 /*
 $file is Null if the Hugging Face URL and/or file name is incorrect.

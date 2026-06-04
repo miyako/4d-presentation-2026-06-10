@@ -1,9 +1,14 @@
 //%attributes = {"invisible":true}
+/*
+E5 models expect the "passage:" prefix
+*/
+
 var $client : cs:C1710.AIKit.OpenAI
-$client:=cs:C1710.AIKit.OpenAI.new({baseURL: "http://127.0.0.1:"+String:C10(Storage:C1525.ports.e5)+"/v1"})
+$client:=cs:C1710.AIKit.OpenAI.new({baseURL: "http://127.0.0.1:8888/v1"})
 
 var $model : Text
-$model:=""
+$model:="e5-base-v2"  //English
+$model:="multilingual-e5-base"
 
 var $inputs : Collection
 $inputs:=[]
@@ -16,12 +21,12 @@ var $cosineSimilarity : Real
 
 var $params : cs:C1710.AIKit.OpenAIEmbeddingsParameters
 $params:=cs:C1710.AIKit.OpenAIEmbeddingsParameters.new()
+var $batch : Object
 $batch:=$client.embeddings.create($inputs; $model; $params)
 
 If ($batch.success)
 	$embeddings:=$batch.embeddings
 	$cosineSimilarity:=$embeddings[0].embedding.cosineSimilarity($embeddings[1].embedding)
-	//0.9219811054545
 End if 
 
 $inputs[0]:="passage: He sat by the bank of the river, resting under the branch of an old oak tree."
@@ -32,5 +37,4 @@ $batch:=$client.embeddings.create($inputs; $model)
 If ($batch.success)
 	$embeddings:=$batch.embeddings
 	$cosineSimilarity:=$embeddings[0].embedding.cosineSimilarity($embeddings[1].embedding)
-	//0.7896724295248
 End if 

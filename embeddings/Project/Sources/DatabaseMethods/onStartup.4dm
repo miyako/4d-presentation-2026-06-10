@@ -1,20 +1,3 @@
-Use (Storage:C1525)
-	Storage:C1525.ports:=New shared object:C1526(\
-		"embeddinggemma"; 9001; \
-		"m3"; 9002; \
-		"ettin"; 9003; \
-		"granite"; 9004; \
-		"nomic"; 9005; \
-		"e5"; 9006; \
-		"qwen"; 9007; \
-		"graniteEn"; 9008; \
-		"nomicEn"; 9009; \
-		"e5En"; 9010; \
-		"arctic"; 9011; \
-		"gte"; 9012; \
-		"arcticEn"; 9013)
-End use 
-
 var $llama : cs:C1710.llama.llama
 var $huggingfaces : cs:C1710.event.huggingfaces
 var $embeddings; $rerank : cs:C1710.event.huggingface
@@ -51,490 +34,86 @@ $batches:=2
 $threads:=2
 $threads_batch:=2
 
-If (False:C215)
-	
-	$folder:=$homeFolder.folder("embeddinggemma-300m")
-	$path:="embeddinggemma-300m-Q8_0.gguf"
-	$URL:="keisuke-miyako/embeddinggemma-300m-gguf-q8_0"
-	
-	$pooling:="mean"
-	
-/*
-	
-埋め込みモデルのハイパーパラメーター
-	
-以下を間違えると起動しない
-	
-- pooling
-- ctx_size
-- ubatch_size
-	
-以下はパフォーマンスを左右する
-	
-- n_gpu_layers
-- ctx_size
-- threads 
-- threads_batch 
-	
-注記
-	
-- ubatch_sizeはbatch_sizeの倍数であるべき
-- parallelはスロット数（単一リクエストで送信するバッチ数に合わせる）
-- threads_httpには+1の余裕を持たせると良い（healthエンドポイントのため）
-- ctx_sizeにはプロンプト全体が収まらなければならない
-- threadsはデコーダー（出力）
-- threads_batchはエンコーダー（入力）
-- threads,threads_batchはCPUのコア数（GPUではない）
-	
-埋め込みモデル特有の注意点
-	
-- ubatch_sizeにプロンプト(=ctx_size)がまるごと収まらなければならない
-	
- */
-	
-	$logFile:=$folder.file("llama.log")
-	$folder.create()
-	If (Not:C34($logFile.exists))
-		$logFile.setContent(4D:C1709.Blob.new())
-	End if 
-	
-	$port:=Storage:C1525.ports.embeddinggemma
-	$options:={\
-		embeddings: True:C214; \
-		pooling: $pooling; \
-		ctx_size: $max_position_embeddings*$batches; \
-		batch_size: $batch_size*$batches; \
-		ubatch_size: $ubatch_size; \
-		parallel: $batches; \
-		threads: $threads; \
-		threads_batch: $threads_batch; \
-		threads_http: $batches+1; \
-		log_file: $logFile; \
-		log_disable: False:C215; \
-		n_gpu_layers: $n_gpu_layers}
-	
-	$embeddings:=cs:C1710.event.huggingface.new($folder; $URL; $path)
-	$huggingfaces:=cs:C1710.event.huggingfaces.new([$embeddings])
-	$llama:=cs:C1710.llama.llama.new($port; $huggingfaces; $homeFolder; $options; $event)
-	
-End if 
+var $iniFile : 4D:C1709.File
+var $ini : Collection
 
-If (True:C214)
-	
-	$folder:=$homeFolder.folder("bge-m3")
-	$path:="bge-m3-Q8_0.gguf"
-	$URL:="keisuke-miyako/bge-m3-gguf-q8_0"
-	
-	$pooling:="cls"
-	
-	$logFile:=$folder.file("llama.log")
-	$folder.create()
-	If (Not:C34($logFile.exists))
-		$logFile.setContent(4D:C1709.Blob.new())
-	End if 
-	
-	$port:=Storage:C1525.ports.m3
-	$options:={\
-		embeddings: True:C214; \
-		pooling: $pooling; \
-		ctx_size: $max_position_embeddings*$batches; \
-		batch_size: $batch_size*$batches; \
-		ubatch_size: $ubatch_size; \
-		parallel: $batches; \
-		threads: $threads; \
-		threads_batch: $threads_batch; \
-		threads_http: $batches+1; \
-		log_file: $logFile; \
-		log_disable: False:C215; \
-		n_gpu_layers: $n_gpu_layers}
-	
-	$embeddings:=cs:C1710.event.huggingface.new($folder; $URL; $path)
-	$huggingfaces:=cs:C1710.event.huggingfaces.new([$embeddings])
-	$llama:=cs:C1710.llama.llama.new($port; $huggingfaces; $homeFolder; $options; $event)
-	
-End if 
+$ini:=[]
+$ini.push("version = 1")
 
-If (False:C215)
-	
-	$folder:=$homeFolder.folder("ettin-encoder")
-	$path:="ettin-encoder-400m-Q8_0.gguf"
-	$URL:="keisuke-miyako/ettin-encoder-gguf"
-	
-	$pooling:="mean"
-	
-	$logFile:=$folder.file("llama.log")
-	$folder.create()
-	If (Not:C34($logFile.exists))
-		$logFile.setContent(4D:C1709.Blob.new())
-	End if 
-	
-	$port:=Storage:C1525.ports.ettin
-	$options:={\
-		embeddings: True:C214; \
-		pooling: $pooling; \
-		ctx_size: $max_position_embeddings*$batches; \
-		batch_size: $batch_size*$batches; \
-		ubatch_size: $ubatch_size; \
-		parallel: $batches; \
-		threads: $threads; \
-		threads_batch: $threads_batch; \
-		threads_http: $batches+1; \
-		log_file: $logFile; \
-		log_disable: False:C215; \
-		n_gpu_layers: $n_gpu_layers}
-	
-	$embeddings:=cs:C1710.event.huggingface.new($folder; $URL; $path)
-	$huggingfaces:=cs:C1710.event.huggingfaces.new([$embeddings])
-	$llama:=cs:C1710.llama.llama.new($port; $huggingfaces; $homeFolder; $options; $event)
-	
-End if 
+$ini.push("[embeddinggemma]")
+$ini.push("model = "+$homeFolder.file("embeddinggemma-300m/embeddinggemma-300m-Q8_0.gguf").path)
+$ini.push("pooling = mean")
 
-If (False:C215)
-	
-	$folder:=$homeFolder.folder("granite-embedding-multilingual-r2")
-	$path:="granite-embedding-311m-multilingual-r2-Q8_0.gguf"
-	$URL:="keisuke-miyako/granite-embedding-multilingual-r2-gguf"
-	
-	$pooling:="cls"
-	
-	$logFile:=$folder.file("llama.log")
-	$folder.create()
-	If (Not:C34($logFile.exists))
-		$logFile.setContent(4D:C1709.Blob.new())
-	End if 
-	
-	$port:=Storage:C1525.ports.granite
-	$options:={\
-		embeddings: True:C214; \
-		pooling: $pooling; \
-		ctx_size: $max_position_embeddings*$batches; \
-		batch_size: $batch_size*$batches; \
-		ubatch_size: $ubatch_size; \
-		parallel: $batches; \
-		threads: $threads; \
-		threads_batch: $threads_batch; \
-		threads_http: $batches+1; \
-		log_file: $logFile; \
-		log_disable: False:C215; \
-		n_gpu_layers: $n_gpu_layers}
-	
-	$embeddings:=cs:C1710.event.huggingface.new($folder; $URL; $path)
-	$huggingfaces:=cs:C1710.event.huggingfaces.new([$embeddings])
-	$llama:=cs:C1710.llama.llama.new($port; $huggingfaces; $homeFolder; $options; $event)
-	
-End if 
+$ini.push("[ettin-encoder]")
+$ini.push("model = "+$homeFolder.file("ettin-encoder/ettin-encoder-400m-Q8_0.gguf").path)
+$ini.push("pooling = mean")
 
-If (False:C215)
-	
-	$folder:=$homeFolder.folder("nomic-embed-text-v2-moe")
-	$path:="nomic-embed-text-v2-moe-Q8_0.gguf"
-	$URL:="keisuke-miyako/nomic-embed-text-v2-moe-gguf-q8_0"
-	
-	$pooling:="mean"
-	
-	$logFile:=$folder.file("llama.log")
-	$folder.create()
-	If (Not:C34($logFile.exists))
-		$logFile.setContent(4D:C1709.Blob.new())
-	End if 
-	
-	$port:=Storage:C1525.ports.nomic
-	$options:={\
-		embeddings: True:C214; \
-		pooling: $pooling; \
-		ctx_size: $max_position_embeddings*$batches; \
-		batch_size: $batch_size*$batches; \
-		ubatch_size: $ubatch_size; \
-		parallel: $batches; \
-		threads: $threads; \
-		threads_batch: $threads_batch; \
-		threads_http: $batches+1; \
-		log_file: $logFile; \
-		log_disable: False:C215; \
-		n_gpu_layers: $n_gpu_layers}
-	
-	$embeddings:=cs:C1710.event.huggingface.new($folder; $URL; $path)
-	$huggingfaces:=cs:C1710.event.huggingfaces.new([$embeddings])
-	$llama:=cs:C1710.llama.llama.new($port; $huggingfaces; $homeFolder; $options; $event)
-	
-End if 
+$ini.push("[nomic-embed-text-v2-moe]")
+$ini.push("model = "+$homeFolder.file("nomic-embed-text-v2-moe/nomic-embed-text-v2-moe-Q8_0.gguf").path)
+$ini.push("pooling = mean")
 
-If (False:C215)
-	
-	$folder:=$homeFolder.folder("multilingual-e5-base")
-	$path:="multilingual-e5-base-Q8_0.gguf"
-	$URL:="keisuke-miyako/multilingual-e5-base-gguf-q8_0"
-	
-	$pooling:="mean"
-	
-	$logFile:=$folder.file("llama.log")
-	$folder.create()
-	If (Not:C34($logFile.exists))
-		$logFile.setContent(4D:C1709.Blob.new())
-	End if 
-	
-	$port:=Storage:C1525.ports.e5
-	$options:={\
-		embeddings: True:C214; \
-		pooling: $pooling; \
-		ctx_size: $max_position_embeddings*$batches; \
-		batch_size: $batch_size*$batches; \
-		ubatch_size: $ubatch_size; \
-		parallel: $batches; \
-		threads: $threads; \
-		threads_batch: $threads_batch; \
-		threads_http: $batches+1; \
-		log_file: $logFile; \
-		log_disable: False:C215; \
-		n_gpu_layers: $n_gpu_layers}
-	
-	$embeddings:=cs:C1710.event.huggingface.new($folder; $URL; $path)
-	$huggingfaces:=cs:C1710.event.huggingfaces.new([$embeddings])
-	$llama:=cs:C1710.llama.llama.new($port; $huggingfaces; $homeFolder; $options; $event)
-	
-End if 
+$ini.push("[nomic-embed-text-v1.5]")
+$ini.push("model = "+$homeFolder.file("nomic-embed-text-v1.5/nomic-embed-text-v1.5-Q8_0.gguf").path)
+$ini.push("pooling = mean")
 
-If (False:C215)
-	
-	$folder:=$homeFolder.folder("Qwen3-Embedding-0.6B")
-	$path:="Qwen3-Embedding-0.6B-Q8_0.gguf"
-	$URL:="keisuke-miyako/Qwen3-Embedding-0.6B-gguf-q8_0"
-	
-	$pooling:="last"
-	
-	$logFile:=$folder.file("llama.log")
-	$folder.create()
-	If (Not:C34($logFile.exists))
-		$logFile.setContent(4D:C1709.Blob.new())
-	End if 
-	
-	$port:=Storage:C1525.ports.qwen
-	$options:={\
-		embeddings: True:C214; \
-		pooling: $pooling; \
-		ctx_size: $max_position_embeddings*$batches; \
-		batch_size: $batch_size*$batches; \
-		ubatch_size: $ubatch_size; \
-		parallel: $batches; \
-		threads: $threads; \
-		threads_batch: $threads_batch; \
-		threads_http: $batches+1; \
-		log_file: $logFile; \
-		log_disable: False:C215; \
-		n_gpu_layers: $n_gpu_layers}
-	
-	$embeddings:=cs:C1710.event.huggingface.new($folder; $URL; $path)
-	$huggingfaces:=cs:C1710.event.huggingfaces.new([$embeddings])
-	$llama:=cs:C1710.llama.llama.new($port; $huggingfaces; $homeFolder; $options; $event)
-	
-End if 
+$ini.push("[multilingual-e5-base]")
+$ini.push("model = "+$homeFolder.file("multilingual-e5-base/multilingual-e5-base-Q8_0.gguf").path)
+$ini.push("pooling = mean")
 
-If (False:C215)
-	
-	$folder:=$homeFolder.folder("granite-embedding-english-r2")
-	$path:="granite-embedding-english-r2-Q8_0.gguf"
-	$URL:="keisuke-miyako/granite-embedding-english-r2-gguf-q8_0"
-	
-	$pooling:="cls"
-	
-	$logFile:=$folder.file("llama.log")
-	$folder.create()
-	If (Not:C34($logFile.exists))
-		$logFile.setContent(4D:C1709.Blob.new())
-	End if 
-	
-	$port:=Storage:C1525.ports.graniteEn
-	$options:={\
-		embeddings: True:C214; \
-		pooling: $pooling; \
-		ctx_size: $max_position_embeddings*$batches; \
-		batch_size: $batch_size*$batches; \
-		ubatch_size: $ubatch_size; \
-		parallel: $batches; \
-		threads: $threads; \
-		threads_batch: $threads_batch; \
-		threads_http: $batches+1; \
-		log_file: $logFile; \
-		log_disable: False:C215; \
-		n_gpu_layers: $n_gpu_layers}
-	
-	$embeddings:=cs:C1710.event.huggingface.new($folder; $URL; $path)
-	$huggingfaces:=cs:C1710.event.huggingfaces.new([$embeddings])
-	$llama:=cs:C1710.llama.llama.new($port; $huggingfaces; $homeFolder; $options; $event)
-	
-End if 
+$ini.push("[e5-base-v2]")
+$ini.push("model = "+$homeFolder.file("e5-base-v2/e5-base-v2-Q8_0.gguf").path)
+$ini.push("pooling = mean")
 
-If (False:C215)
-	
-	$folder:=$homeFolder.folder("nomic-embed-text-v1.5")
-	$path:="nomic-embed-text-v1.5-Q8_0.gguf"
-	$URL:="keisuke-miyako/nomic-embed-text-v1.5-gguf-q8_0"
-	
-	$pooling:="mean"
-	
-	$logFile:=$folder.file("llama.log")
-	$folder.create()
-	If (Not:C34($logFile.exists))
-		$logFile.setContent(4D:C1709.Blob.new())
-	End if 
-	
-	$port:=Storage:C1525.ports.nomicEn
-	$options:={\
-		embeddings: True:C214; \
-		pooling: $pooling; \
-		ctx_size: $max_position_embeddings*$batches; \
-		batch_size: $batch_size*$batches; \
-		ubatch_size: $ubatch_size; \
-		parallel: $batches; \
-		threads: $threads; \
-		threads_batch: $threads_batch; \
-		threads_http: $batches+1; \
-		log_file: $logFile; \
-		log_disable: False:C215; \
-		n_gpu_layers: $n_gpu_layers}
-	
-	$embeddings:=cs:C1710.event.huggingface.new($folder; $URL; $path)
-	$huggingfaces:=cs:C1710.event.huggingfaces.new([$embeddings])
-	$llama:=cs:C1710.llama.llama.new($port; $huggingfaces; $homeFolder; $options; $event)
-	
-End if 
+//pooling: last-token
 
-If (False:C215)
-	
-	$folder:=$homeFolder.folder("e5-base-v2")
-	$path:="e5-base-v2-Q8_0.gguf"
-	$URL:="keisuke-miyako/e5-base-v2-gguf-q8_0"
-	
-	$pooling:="mean"
-	
-	$logFile:=$folder.file("llama.log")
-	$folder.create()
-	If (Not:C34($logFile.exists))
-		$logFile.setContent(4D:C1709.Blob.new())
-	End if 
-	
-	$port:=Storage:C1525.ports.e5En
-	$options:={\
-		embeddings: True:C214; \
-		pooling: $pooling; \
-		ctx_size: $max_position_embeddings*$batches; \
-		batch_size: $batch_size*$batches; \
-		ubatch_size: $ubatch_size; \
-		parallel: $batches; \
-		threads: $threads; \
-		threads_batch: $threads_batch; \
-		threads_http: $batches+1; \
-		log_file: $logFile; \
-		log_disable: False:C215; \
-		n_gpu_layers: $n_gpu_layers}
-	
-	$embeddings:=cs:C1710.event.huggingface.new($folder; $URL; $path)
-	$huggingfaces:=cs:C1710.event.huggingfaces.new([$embeddings])
-	$llama:=cs:C1710.llama.llama.new($port; $huggingfaces; $homeFolder; $options; $event)
-	
-End if 
+$ini.push("[Qwen3-Embedding-0.6B]")
+$ini.push("model = "+$homeFolder.file("Qwen3-Embedding-0.6B/Qwen3-Embedding-0.6B-Q8_0.gguf").path)
+$ini.push("pooling = last")
 
-If (False:C215)
-	
-	$folder:=$homeFolder.folder("snowflake-arctic-embed-l-v2.0")
-	$path:="snowflake-arctic-embed-l-v2.0-Q8_0.gguf"
-	$URL:="keisuke-miyako/snowflake-arctic-embed-l-v2.0-gguf"
-	
-	$pooling:="cls"
-	
-	$logFile:=$folder.file("llama.log")
-	$folder.create()
-	If (Not:C34($logFile.exists))
-		$logFile.setContent(4D:C1709.Blob.new())
-	End if 
-	
-	$port:=Storage:C1525.ports.arctic
-	$options:={\
-		embeddings: True:C214; \
-		pooling: $pooling; \
-		ctx_size: $max_position_embeddings*$batches; \
-		batch_size: $batch_size*$batches; \
-		ubatch_size: $ubatch_size; \
-		parallel: $batches; \
-		threads: $threads; \
-		threads_batch: $threads_batch; \
-		threads_http: $batches+1; \
-		log_file: $logFile; \
-		log_disable: False:C215; \
-		n_gpu_layers: $n_gpu_layers}
-	
-	$embeddings:=cs:C1710.event.huggingface.new($folder; $URL; $path)
-	$huggingfaces:=cs:C1710.event.huggingfaces.new([$embeddings])
-	$llama:=cs:C1710.llama.llama.new($port; $huggingfaces; $homeFolder; $options; $event)
-	
-End if 
+//pooling: CLS
 
-If (False:C215)
-	
-	$folder:=$homeFolder.folder("gte-modernbert")
-	$path:="gte-modernbert-base-Q8_0.gguf"
-	$URL:="keisuke-miyako/gte-modernbert-base-gguf"
-	
-	$pooling:="mean"
-	
-	$logFile:=$folder.file("llama.log")
-	$folder.create()
-	If (Not:C34($logFile.exists))
-		$logFile.setContent(4D:C1709.Blob.new())
-	End if 
-	
-	$port:=Storage:C1525.ports.gte
-	$options:={\
-		embeddings: True:C214; \
-		pooling: $pooling; \
-		ctx_size: $max_position_embeddings*$batches; \
-		batch_size: $batch_size*$batches; \
-		ubatch_size: $ubatch_size; \
-		parallel: $batches; \
-		threads: $threads; \
-		threads_batch: $threads_batch; \
-		threads_http: $batches+1; \
-		log_file: $logFile; \
-		log_disable: False:C215; \
-		n_gpu_layers: $n_gpu_layers}
-	
-	$embeddings:=cs:C1710.event.huggingface.new($folder; $URL; $path)
-	$huggingfaces:=cs:C1710.event.huggingfaces.new([$embeddings])
-	$llama:=cs:C1710.llama.llama.new($port; $huggingfaces; $homeFolder; $options; $event)
-	
-End if 
+$ini.push("[bge-m3]")
+$ini.push("model = "+$homeFolder.file("bge-m3/bge-m3-Q8_0.gguf").path)
+$ini.push("pooling = cls")
 
-If (False:C215)
-	
-	$folder:=$homeFolder.folder("snowflake-arctic-embed-l")
-	$path:="snowflake-arctic-embed-l-Q8_0.gguf"
-	$URL:="keisuke-miyako/snowflake-arctic-embed-l-gguf"
-	
-	$pooling:="mean"
-	
-	$logFile:=$folder.file("llama.log")
-	$folder.create()
-	If (Not:C34($logFile.exists))
-		$logFile.setContent(4D:C1709.Blob.new())
-	End if 
-	
-	$port:=Storage:C1525.ports.arcticEn
-	$options:={\
-		embeddings: True:C214; \
-		pooling: $pooling; \
-		ctx_size: $max_position_embeddings*$batches; \
-		batch_size: $batch_size*$batches; \
-		ubatch_size: $ubatch_size; \
-		parallel: $batches; \
-		threads: $threads; \
-		threads_batch: $threads_batch; \
-		threads_http: $batches+1; \
-		log_file: $logFile; \
-		log_disable: False:C215; \
-		n_gpu_layers: $n_gpu_layers}
-	
-	$embeddings:=cs:C1710.event.huggingface.new($folder; $URL; $path)
-	$huggingfaces:=cs:C1710.event.huggingfaces.new([$embeddings])
-	$llama:=cs:C1710.llama.llama.new($port; $huggingfaces; $homeFolder; $options; $event)
-	
-End if 
+$ini.push("[granite-embedding-multilingual-r2]")
+$ini.push("model = "+$homeFolder.file("granite-embedding-multilingual-r2/granite-embedding-311m-multilingual-r2-Q8_0.gguf").path)
+$ini.push("pooling = cls")
+
+$ini.push("[granite-embedding-english-r2]")
+$ini.push("model = "+$homeFolder.file("granite-embedding-english-r2/granite-embedding-english-r2-Q8_0.gguf").path)
+$ini.push("pooling = cls")
+
+$ini.push("[gte-modernbert]")
+$ini.push("model = "+$homeFolder.file("gte-modernbert/gte-modernbert-base-Q8_0.gguf").path)
+$ini.push("pooling = cls")  //https://huggingface.co/Alibaba-NLP/gte-modernbert-base/blob/main/1_Pooling/config.json
+
+$ini.push("[snowflake-arctic-embed-l-v2.0]")
+$ini.push("model = "+$homeFolder.file("snowflake-arctic-embed-l-v2.0/snowflake-arctic-embed-l-v2.0-Q8_0.gguf").path)
+$ini.push("pooling = cls")  //https://huggingface.co/Snowflake/snowflake-arctic-embed-l-v2.0/blob/main/1_Pooling/config.json
+
+$ini.push("[snowflake-arctic-embed-l]")
+$ini.push("model = "+$homeFolder.file("snowflake-arctic-embed-l/snowflake-arctic-embed-l-Q8_0.gguf").path)
+$ini.push("pooling = cls")
+
+$port:=8888
+$folder:=$homeFolder.folder("llama-"+String:C10($port))
+
+$iniFile:=$folder.file("models.ini")
+$iniFile.setText($ini.join("\n"))
+
+$options:={\
+embeddings: True:C214; \
+models_preset: $iniFile; \
+ctx_size: $max_position_embeddings*$batches; \
+batch_size: $batch_size*$batches; \
+ubatch_size: $ubatch_size; \
+parallel: $batches; \
+threads: $threads; \
+threads_batch: $threads_batch; \
+threads_http: $batches+1; \
+log_file: $logFile; \
+log_disable: False:C215; \
+n_gpu_layers: $n_gpu_layers}
+
+$llama:=cs:C1710.llama.llama.new($port; Null:C1517; $homeFolder; $options; $event)
