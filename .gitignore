@@ -9,3 +9,4 @@ design-reference-21r2/secrets/Claude.token
 design-reference-21r2/data/*
 design-reference-21r2/backupHistory.json
 *.4BK
+design-reference-21r2/secrets/OpenAI.token
