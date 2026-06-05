@@ -28,7 +28,7 @@ var $provider : Text
 $provider:="OpenAI"
 //$provider:="Anthropic"
 
-For each ($passage; $passages.slice(0; 3))
+For each ($passage; $passages)
 	var $language; $version; $text : Text
 	$language:=$passage.document.meta.language
 	$version:=$passage.document.meta.version
