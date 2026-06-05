@@ -38,7 +38,6 @@ For each ($passage; $passages.slice(0; 3))
 	
 	Case of 
 		: ($provider="Anthropic")
-			
 			$json:={params: {}}
 			$json.custom_id:="passage-"+String:C10($passage.getKey())
 			$json.params.model:="claude-sonnet-4-6"
@@ -46,9 +45,7 @@ For each ($passage; $passages.slice(0; 3))
 			$json.params.system:=$systemPrompt
 			$json.params.messages:=[{role: "user"; content: $userPrompt}]
 			$jsonl.requests.push($json)
-			
 		: ($provider="OpenAI")
-			
 			$json:={body: {}}
 			$json.custom_id:="passage-"+String:C10($passage.getKey())
 			$json.method:="POST"
@@ -60,18 +57,12 @@ For each ($passage; $passages.slice(0; 3))
 				{role: "system"; content: $systemPrompt}; \
 				{role: "user"; content: $userPrompt}]
 			$jsonl.requests.push(JSON Stringify:C1217($json))
-			
 	End case 
-	
 End for each 
 
 Case of 
 	: ($provider="Anthropic")
-		
 		Folder:C1567(fk desktop folder:K87:19).file($provider+"-batch-example.jsonl").setText(JSON Stringify:C1217($jsonl))
-		
 	: ($provider="OpenAI")
-		
 		Folder:C1567(fk desktop folder:K87:19).file($provider+"-batch-example.jsonl").setText($jsonl.requests.join("\n"))
-		
 End case 
