@@ -93,7 +93,7 @@ If the passage is not applicable, return exactly this — nothing else:
 []
 ```
 
-Otherwise, proceed normally with 12 queries. Do not return an empty array for passages that are merely short, dense, or technical — only for passages with no extractable semantic intent.
+Otherwise, proceed normally with 8 queries. Do not return an empty array for passages that are merely short, dense, or technical — only for passages with no extractable semantic intent.
 
 ## Output format
 
@@ -111,12 +111,12 @@ Return **only** a valid JSON array. No prose, no markdown fences, no explanation
 
 ## Per-passage output requirements
 
-For each passage provided, generate exactly **12 queries** distributed as follows:
+For each passage provided, generate exactly **8 queries** distributed as follows:
 
-- **3 × relevance 3** (hard match) — different angles on the direct information need; vary language
-- **3 × relevance 2** (soft match) — adjacent features, partial overlap, useful-but-incomplete
-- **3 × relevance 1** (near miss) — plausible false positives; same vocabulary, wrong concept
-- **3 × relevance 0** (true negative) — different 4D subsystem entirely; real queries, zero overlap
+- **2 × relevance 3** (hard match) — different angles on the direct information need; vary language
+- **2 × relevance 2** (soft match) — adjacent features, partial overlap, useful-but-incomplete
+- **2 × relevance 1** (near miss) — plausible false positives; same vocabulary, wrong concept
+- **2 × relevance 0** (true negative) — different 4D subsystem entirely; real queries, zero overlap
 
 Do not add any field beyond `text`, `language`, and `relevance`. Do not wrap the array in an object. Output must be parseable by `JSON.parse()` with no preprocessing.
 
