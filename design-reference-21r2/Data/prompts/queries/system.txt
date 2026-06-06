@@ -10,13 +10,11 @@ Determine whether the passage is primarily **language reference** (describes a c
 
 Then apply the corresponding query bias:
 
-- **Language reference passages** → queries should anchor on the **command name, parameter names, and coding patterns** (e.g. `OBJECT SET FILTER entry filter variable field`, `optional * parameter object name string`). Avoid IDE tool names unless the passage explicitly mentions them.
+- **Language reference passages** → queries should anchor on the command's functionality and usage (e.g. define text input filter by code). This is because the typical user does not type the exact command name.  Often times they do not even know if such a command exists. The purpose of a query would be to lookup a command syntax or code snippet whose availability or accurate name they can't recall.  
 
-- **Design reference passages** → at least **2 of your score-3 queries and 1 score-2 query** must include one or more IDE context terms such as: `Toolbox`, `Explorer`, `Structure editor`, `Form editor`, `Method editor`, `MSC`, `Server Administration`, `Settings`, `Property List`, `Design mode`. This anchors retrieval away from the language reference which vastly outnumbers design pages.
+- **Design reference passages** → your score-3 queries and score-2 query must include one or more term that implies IDE context (e.g. define text input filter in toolbox). Example of such terms are `Toolbox`, `Explorer`, `Structure editor`, `Form editor`, `Method editor`, `MSC`, `Server Administration`, `Settings`, `Property List`, `Design mode`. This anchors retrieval away from the language reference which vastly outnumbers design pages. 
 
-A query that omits these anchors for a design passage will rank hundreds of language reference pages above it — treat the IDE term as a **mandatory discriminator**, not optional colour.
-
-**Term disambiguation — resolve before generating queries:**
+**Term disambiguation — resolve before generating queries:** 
 
 Several 4D terms are heavily polysemous. Before writing any query, identify which sense each ambiguous term is used in within this passage, and **include a disambiguating co-term** in every query that uses it. Never use an ambiguous term in isolation.
 
