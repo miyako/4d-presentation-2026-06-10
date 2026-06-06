@@ -20,6 +20,9 @@
 		<field name="hash" uuid="B53BB9FB1CCE45F697158512C78D9260" type="10" limiting_length="40" id="5">
 			<field_extra multi_line="false"/>
 		</field>
+		<field name="embeddings512" uuid="125D1B4066D14B6C9FBACF43712B92CC" type="21" blob_switch_size="2147483647" id="6">
+			<field_extra class_id="4D.Vector"/>
+		</field>
 		<primary_key field_name="ID" field_uuid="7A3DA6F8C8CC4903BDF2828681A5DD55"/>
 	</table>
 	<table name="Search" uuid="5953B70661B9472B9AA2E0B9955A3CA7" id="3" prevent_journaling="true">
@@ -33,6 +36,10 @@
 		<field name="language" uuid="ED396CE843A242CAAAF75FE98186FB9D" type="10" limiting_length="2" id="6"/>
 		<field name="relevance" uuid="F7C3A69909004D7BBCF47EC434A50F35" type="3" id="7"/>
 		<field name="similarity" uuid="2CD1EA39C9A34A81B4A35F485FAECF41" type="6" id="8"/>
+		<field name="embeddings512" uuid="4467DEB1A54342E7B64BBB475EDE5B21" type="21" blob_switch_size="2147483647" id="9">
+			<field_extra class_id="4D.Vector"/>
+		</field>
+		<field name="similarity512" uuid="4F96C027334849748926618928F311E2" type="6" id="10"/>
 		<primary_key field_name="ID" field_uuid="C715FD8BAD7A41A68A28D27E4BAB98BD"/>
 	</table>
 	<relation uuid="528CC67102AB42E98C1704D317F843C0" name_Nto1="document" name_1toN="passages" state="1">

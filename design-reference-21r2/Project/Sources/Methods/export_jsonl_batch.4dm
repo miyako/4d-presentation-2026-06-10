@@ -19,14 +19,19 @@ $jsonl:={requests: []}
 var $passages : cs:C1710.PassageSelection
 var $passage : cs:C1710.PassageEntity
 var $languages : Collection
-$languages:=["en"; "fr"]
+$languages:=["en"]
 $passages:=ds:C1482.Passage.query("document.meta.version == :1"+\
-" and document.meta.language in :2"+\
-" and searches == null"; "21-R2"; $languages)
-
-var $provider : Text
+" and document.meta.language in :2"; "21-R2"; $languages)
+/*
+en: 7774
+fr: 8713
+*/
+var $provider; $model : Text
 $provider:="OpenAI"
+//$model:="gpt-5.4-mini"
+$model:="gpt-5.4"
 //$provider:="Anthropic"
+//$model:="claude-sonnet-4-6"
 
 For each ($passage; $passages)
 	var $language; $version; $text : Text
@@ -40,7 +45,7 @@ For each ($passage; $passages)
 		: ($provider="Anthropic")
 			$json:={params: {}}
 			$json.custom_id:="passage-"+String:C10($passage.getKey())
-			$json.params.model:="claude-sonnet-4-6"
+			$json.params.model:=$model
 			$json.params.max_tokens:=1500
 			$json.params.system:=$systemPrompt
 			$json.params.messages:=[{role: "user"; content: $userPrompt}]
@@ -50,8 +55,7 @@ For each ($passage; $passages)
 			$json.custom_id:="passage-"+String:C10($passage.getKey())
 			$json.method:="POST"
 			$json.url:="/v1/chat/completions"
-			$json.body.model:="gpt-5.4"
-			$json.body.model:="gpt-5.4-mini"
+			$json.body.model:=$model
 			$json.body.max_completion_tokens:=1500
 			$json.body.messages:=[\
 				{role: "system"; content: $systemPrompt}; \
@@ -62,7 +66,7 @@ End for each
 
 Case of 
 	: ($provider="Anthropic")
-		Folder:C1567(fk desktop folder:K87:19).file($provider+"-batch-example.jsonl").setText(JSON Stringify:C1217($jsonl))
+		Folder:C1567(fk desktop folder:K87:19).file($provider+"-"+$model+"-batch-example.jsonl").setText(JSON Stringify:C1217($jsonl))
 	: ($provider="OpenAI")
-		Folder:C1567(fk desktop folder:K87:19).file($provider+"-batch-example.jsonl").setText($jsonl.requests.join("\n"))
+		Folder:C1567(fk desktop folder:K87:19).file($provider+"-"+$model+"-batch-example.jsonl").setText($jsonl.requests.join("\n"))
 End case 

@@ -94,9 +94,9 @@
 				},
 				"query": {
 					"type": "input",
-					"left": 169,
+					"left": 229,
 					"top": 76,
-					"width": 531,
+					"width": 471,
 					"height": 17,
 					"dataSource": "Form:C1466.query"
 				},
@@ -140,7 +140,7 @@
 					"type": "ruler",
 					"left": 20,
 					"top": 77,
-					"width": 140,
+					"width": 160,
 					"height": 17,
 					"max": 1,
 					"events": [],
@@ -156,11 +156,23 @@
 					"height": 17,
 					"dataSource": "Form:C1466.document.ID",
 					"enterable": false
+				},
+				"threshold": {
+					"type": "input",
+					"left": 189,
+					"top": 76,
+					"width": 31,
+					"height": 17,
+					"dataSource": "Form:C1466.threshold",
+					"dataSourceTypeHint": "number",
+					"enterable": false,
+					"borderStyle": "none",
+					"fill": "transparent"
 				}
 			}
 		}
 	],
-	"geometryStamp": 115,
+	"geometryStamp": 162,
 	"editor": {
 		"activeView": "View 1",
 		"defaultView": "View 1",

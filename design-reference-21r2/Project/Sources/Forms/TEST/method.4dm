@@ -32,8 +32,13 @@ Case of
 				If ($batch.success)
 					
 					Form:C1466.vector:=$batch.embedding.embedding
+					
+					$queryParams:={queryPath: True:C214; queryPlan: True:C214}
+					$documents:=ds:C1482.Document.query("meta.version == :1"+\
+						" and meta.language in :2"; "21-R2"; ["en"]; $queryParams)
 					$comparison:={vector: Form:C1466.vector; metric: mk cosine:K95:1; threshold: Form:C1466.threshold}
-					$documents:=ds:C1482.Document.query("passages.embeddings > :1"; $comparison)
+					$documents:=$documents.query("passages.embeddings > :1"; $comparison; $queryParams)
+					
 					Form:C1466.documents:={col: Null:C1517; sel: Null:C1517; item: Null:C1517; pos: Null:C1517}
 					Form:C1466.documents.col:=$documents
 					
@@ -43,9 +48,12 @@ Case of
 				
 			: ($event.objectName="rul.threshold") && (Form:C1466.vector#Null:C1517)
 				
-				var $comparison:={vector: Form:C1466.vector; metric: mk cosine:K95:1; threshold: Form:C1466.threshold}
-				var $documents : cs:C1710.DocumentSelection
-				$documents:=ds:C1482.Document.query("passages.embeddings > :1"; $comparison)
+				$queryParams:={queryPath: True:C214; queryPlan: True:C214}
+				$documents:=ds:C1482.Document.query("meta.version == :1"+\
+					" and meta.language in :2"; "21-R2"; ["en"]; $queryParams)
+				$comparison:={vector: Form:C1466.vector; metric: mk cosine:K95:1; threshold: Form:C1466.threshold}
+				$documents:=$documents.query("passages.embeddings > :1"; $comparison; $queryParams)
+				
 				Form:C1466.documents:={col: Null:C1517; sel: Null:C1517; item: Null:C1517; pos: Null:C1517}
 				Form:C1466.documents.col:=$documents
 				
@@ -74,9 +82,12 @@ Case of
 			
 			Form:C1466.query:=$search.text
 			Form:C1466.vector:=$search.embeddings
-			
+			var $queryParams : Object
+			$queryParams:={queryPath: True:C214; queryPlan: True:C214}
+			$documents:=ds:C1482.Document.query("meta.version == :1"+\
+				" and meta.language in :2"; "21-R2"; ["en"]; $queryParams)
 			$comparison:={vector: Form:C1466.vector; metric: mk cosine:K95:1; threshold: Form:C1466.threshold}
-			$documents:=ds:C1482.Document.query("passages.embeddings > :1"; $comparison)
+			$documents:=$documents.query("passages.embeddings > :1"; $comparison; $queryParams)
 			Form:C1466.documents:={col: Null:C1517; sel: Null:C1517; item: Null:C1517; pos: Null:C1517}
 			Form:C1466.documents.col:=$documents
 			
