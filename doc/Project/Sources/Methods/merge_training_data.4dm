@@ -45,7 +45,7 @@ For each ($file; $files)
 End for each 
 //5200 unique passsages (out of 124761)
 
-// Second pass: prune negatives that appear as positives in any record
+// Second pass: prune negatives that appear as positives
 For each ($jsonl; $allRecords)
 	var $cleanNeg : Collection
 	$cleanNeg:=[]

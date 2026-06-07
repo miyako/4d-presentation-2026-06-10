@@ -1,5 +1,5 @@
 //%attributes = {}
-//sequential vector query may diplay progress window
+//sequential vector query may display progress window
 MESSAGES OFF:C175
 
 var $Rn : Text
@@ -22,8 +22,8 @@ $batch:=100
 $count:=$rerankerFolder.folders().length
 
 var $negativeThreshold; $positiveThreshold; $hardNegativeThreshold : Real
-$negativeThreshold:=0.65  //0.55 might be too aggressive?
-$positiveThreshold:=0.85  //0.75 might be too loose?
+$negativeThreshold:=0.65
+$positiveThreshold:=0.85
 $hardNegativeThreshold:=0.35
 
 //some queries are identical
