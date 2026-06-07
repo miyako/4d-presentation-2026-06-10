@@ -1,6 +1,6 @@
 //%attributes = {}
 var $Rn : Text
-$Rn:="r1"
+$Rn:="r2"
 
 var $folder : 4D:C1709.Folder
 $folder:=Folder:C1567([""; "DATA"; "dataset"; $Rn].join("/"))
@@ -17,8 +17,9 @@ var $fileIndex; $negIndex : Integer
 $fileIndex:=1
 
 $files:=$folder.files(fk recursive:K87:7).query("extension == :1"; ".json")
-$lines:=[]
+//30310
 
+$lines:=[]
 $posRow:=[]
 $negRow:=[]
 
@@ -42,6 +43,7 @@ For each ($file; $files)
 		End if 
 	End for each 
 End for each 
+//5200 unique passsages (out of 124761)
 
 // Second pass: prune negatives that appear as positives in any record
 For each ($jsonl; $allRecords)
@@ -50,7 +52,14 @@ For each ($jsonl; $allRecords)
 	$negIndex:=0
 	var $negHash : Text
 	For each ($negHash; $jsonl.neg_hash)
-		If ($passageToQueries[$negHash]=Null:C1517)
+		var $isPositiveForThisQuery : Boolean
+		$isPositiveForThisQuery:=False:C215
+		If ($passageToQueries[$negHash]#Null:C1517)
+			If ($passageToQueries[$negHash].indexOf($jsonl.query)#-1)
+				$isPositiveForThisQuery:=True:C214
+			End if 
+		End if 
+		If (Not:C34($isPositiveForThisQuery))
 			$cleanNeg.push($jsonl.neg.at($negIndex))
 		End if 
 		$negIndex+=1
@@ -76,8 +85,8 @@ If ($lines.length#0)
 	$exportFolder.file(String:C10($fileIndex; "00000")+".jsonl").setText($lines.join("\n"))
 End if 
 
-$posAvg:=$posRow.average()  //1.027397260274
-$negAvg:=$negRow.average()  //2.100456621005
+$posAvg:=$posRow.average()
+$negAvg:=$negRow.average()
 
 var $totalRows; $prunedRows : Integer
 $totalRows:=$posRow.length  // records that survived pruning
