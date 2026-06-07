@@ -3,6 +3,7 @@ $homeFolder:=Folder:C1567(fk home folder:K87:24).folder(".GGUF")
 $folder:=$homeFolder.folder("bge-m3")
 var $path : Text
 $path:="bge-m3-Q8_0.gguf"
+//$path:="bge-m3-doc-r1-q8_0.gguf"
 var $modelFile : 4D:C1709.File
 $modelFile:=$folder.file($path)
 ASSERT:C1129($modelFile.exists)
@@ -32,6 +33,7 @@ $event:=cs:C1710.event.event.new()
 var $max_position_embeddings; $batch_size; $parallel; $threads; $batches : Integer
 
 $URL:="keisuke-miyako/bge-m3-gguf-q8_0"
+$URL:="keisuke-miyako/bge-m3-doc-r1-gguf"
 
 var $pooling; $cache_type_k; $cache_type_v : Text
 var $ubatch_size; $n_gpu_layers : Integer
@@ -81,7 +83,7 @@ $path:="ettin-reranker-1b-v1-Q8_0.gguf"
 $URL:="keisuke-miyako/ettin-reranker-v1-gguf"
 
 $pooling:="rank"
-$ubatch_size:=1024  //ettin uses more tokens than wen
+$ubatch_size:=1024  //ettin uses more tokens than BGE M3
 $n_gpu_layers:=-1
 $cache_type_k:="f16"
 $cache_type_v:="f16"
@@ -99,6 +101,7 @@ $threads_batch:=1  //output; GPU does the heavy lifting
 $port:=Storage:C1525.port.reranker
 $options:={\
 reranking: True:C214; \
+pooling: $pooling; \
 ctx_size: $ubatch_size*$batches; \
 batch_size: $ubatch_size*$batches; \
 ubatch_size: $ubatch_size; \
