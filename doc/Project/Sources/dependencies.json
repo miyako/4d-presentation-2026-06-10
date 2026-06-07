@@ -7,6 +7,18 @@
 		"aikit": {
 			"github": "miyako/aikit",
 			"version": "latest"
+		},
+		"event": {
+			"github": "miyako/event",
+			"version": "latest"
+		},
+		"tcp": {
+			"github": "miyako/tcp",
+			"version": "latest"
+		},
+		"workers": {
+			"github": "miyako/workers",
+			"version": "latest"
 		}
 	}
 }
