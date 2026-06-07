@@ -1,4 +1,0 @@
-Language: $4dtext($1.language)
-Version: $4dtext($1.version)
-
-$4dtext($1.text)
