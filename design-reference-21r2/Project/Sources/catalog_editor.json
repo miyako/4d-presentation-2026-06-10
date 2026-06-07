@@ -10,10 +10,10 @@
 			"coordinates": {
 				"left": 129.94921875,
 				"top": 74.578125,
-				"width": 138,
-				"height": 251.33203125
+				"width": 119,
+				"height": 209.33203125
 			},
-			"displayable_fields_count": 10
+			"displayable_fields_count": 8
 		},
 		"Passage": {
 			"color": {
@@ -25,10 +25,10 @@
 			"coordinates": {
 				"left": 406.25390625,
 				"top": 236.7109375,
-				"width": 138,
-				"height": 167.33203125
+				"width": 124,
+				"height": 146.33203125
 			},
-			"displayable_fields_count": 6,
+			"displayable_fields_count": 5,
 			"fields": {
 				"hash": {
 					"color": {
