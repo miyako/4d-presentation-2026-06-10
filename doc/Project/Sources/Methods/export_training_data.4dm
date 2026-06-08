@@ -22,9 +22,26 @@ $batch:=100
 $count:=$rerankerFolder.folders().length
 
 var $negativeThreshold; $positiveThreshold; $hardNegativeThreshold : Real
-$negativeThreshold:=0.65
-$positiveThreshold:=0.85
-$hardNegativeThreshold:=0.35
+
+Case of 
+	: ($Rn="r1")
+		$negativeThreshold:=0.65
+		$positiveThreshold:=0.85
+		$hardNegativeThreshold:=0.35
+	: ($Rn="r2")
+		$negativeThreshold:=0.6  //↓0.05: keep more hard negatives (prune less aggressively)
+		$positiveThreshold:=0.8  //↓0.05: keep negatives moderately similar to positives  
+		$hardNegativeThreshold:=0.5  //↑0.15: require topical adjacency for candidates
+/*
+- Wider entry door for candidates (cosine ≥ 0.50 means they're genuinely hard)
+- Less aggressive pruning on exit (reranker threshold 0.60 keeps borderline cases)
+- Tighter dedup against positives (0.80 allows more distinct negatives through)
+		
+These three move in the same direction — harder, more numerous negatives 
+which should address the flat relevance 1–2 performance from r1 
+while the cosine floor prevents you from drifting back into easy-negative territory.
+*/
+End case 
 
 //some queries are identical
 var $hashes : Collection
