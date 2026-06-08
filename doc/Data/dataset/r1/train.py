@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
-BGE-M3 legal fine-tuning
-  - sentence-transformers 3.x + ~~MultipleNegativesRankingLoss~~ CachedGISTEmbedLoss
+BGE-M3 fine-tuning
+  - sentence-transformers 3.x + MultipleNegativesSymmetricRankingLoss
   - LoRA via PEFT (rank 32, targets query/key/value/dense)
   - Multi-GPU via torchrun (DDP handled by HF Trainer under the hood)
   - Checkpoints every 100 steps, pushed to HuggingFace
@@ -15,10 +15,9 @@ from datasets import load_dataset
 from huggingface_hub import login
 from peft import LoraConfig, get_peft_model, TaskType
 from sentence_transformers import SentenceTransformer, SentenceTransformerTrainer
-#from sentence_transformers.losses import MultipleNegativesRankingLoss
-#from sentence_transformers.losses import CachedGISTEmbedLoss
 from sentence_transformers.losses import MultipleNegativesSymmetricRankingLoss
 from sentence_transformers.training_args import SentenceTransformerTrainingArguments
+
 
 logging.basicConfig(
     level=logging.INFO,
@@ -28,10 +27,11 @@ logging.basicConfig(
 log = logging.getLogger(__name__)
 
 # ── Args ──────────────────────────────────────────────────────────────────────
-RN         = sys.argv[1] if len(sys.argv) > 1 else "r29"
-WORK_DIR   = sys.argv[2] if len(sys.argv) > 2 else f"/workspace/bge_legal/{RN}"
-CKPT_REPO  = sys.argv[3] if len(sys.argv) > 3 else f"keisuke-miyako/bge-m3-legal-euro-{RN}-checkpoints"
-HF_DATASET = sys.argv[4] if len(sys.argv) > 4 else "keisuke-miyako/legal-euro-2026-0524"
+HF_USER="keisuke-miyako"
+RN         = sys.argv[1] if len(sys.argv) > 1 else "r1"
+WORK_DIR   = sys.argv[2] if len(sys.argv) > 2 else f"/workspace/bge_m3/{RN}"
+CKPT_REPO  = sys.argv[3] if len(sys.argv) > 3 else f"{HF_USER}/bge-m3-doc-{RN}-checkpoints"
+HF_DATASET = sys.argv[4] if len(sys.argv) > 4 else f"{HF_USER}/doc-2026-0607"
 HF_TOKEN   = os.environ.get("HF_TOKEN", "")
 
 ADAPTER_DIR = os.path.join(WORK_DIR, "adapter")
@@ -48,11 +48,6 @@ IS_MAIN    = LOCAL_RANK == 0
 # Hyperparameters — tuned for 4 × A100 80GB PCIe
 # Effective batch = PER_DEVICE_BATCH × GRAD_ACCUM × WORLD_SIZE
 #                 = 8 × 2 × 4 = 64
-#
-# MultipleNegativesRankingLoss uses ALL other positives and negatives in the
-# batch as in-batch negatives, so a large effective batch = rich signal.
-# CachedGISTEmbedLoss filters false negatives via a frozen guide model,
-# so a large effective batch = richer candidate pool for mining.
 # ─────────────────────────────────────────────────────────────────────────────
 PER_DEVICE_BATCH = 8
 GRAD_ACCUM       = 2
@@ -67,7 +62,6 @@ LORA_ALPHA       = 64
 LORA_DROPOUT     = 0.05
 LORA_TARGETS     = ["query", "key", "value", "dense"]
 MNRL_SCALE       = 15.0   # down from 20 to protect positive floor
-#MNRL_TEMPERATURE = 0.01
 
 def make_training_pairs(example):
     """
@@ -142,7 +136,7 @@ def main():
         log.info("Loading merged model ...")
 
     model = SentenceTransformer(
-        "keisuke-miyako/bge-m3-legal-euro-r28-merged",
+        f"{HF_USER}/bge-m3-doc-{RN}-merged",
         model_kwargs={"torch_dtype": torch.bfloat16},
     )
 
@@ -163,30 +157,10 @@ def main():
     if IS_MAIN:
         backbone_lora.print_trainable_parameters()
 
-    # ── Loss ──────────────────────────────────────────────────────────────────
     # MultipleNegativesSymmetricRankingLoss (InfoNCE, bidirectional):
     #   - extends MNRL with reverse direction (passage → query)
-    #   - bidirectional signal raises the floor on true positive scores
     #   - scale = 1/temperature (20 ≈ temperature 0.05)
-    #   - well-tested with torchrun DDP
     loss = MultipleNegativesSymmetricRankingLoss(model, MNRL_SCALE)
-    
-    # ── Loss ──────────────────────────────────────────────────────────────────
-    # MultipleNegativesRankingLoss (InfoNCE):
-    #   - treats all other in-batch positives AND explicit negatives as negatives
-    #   - scale = 1/temperature (default 20 ≈ temperature 0.05)
-    #   - well-tested with torchrun DDP
-#    loss = MultipleNegativesRankingLoss(model, MNRL_SCALE)
-
-    # ── Loss ──────────────────────────────────────────────────────────────────
-    # CachedGISTEmbedLoss:
-    #   - guide model filters false negatives from the batch
-    #   - temperature=0.01 (sharper contrast than MNRL default)
-    #   - "Cached" = guide embeddings computed without grad, low memory overhead
-#    if IS_MAIN:
-#        log.info("Loading guide model ...")
-#    guide = SentenceTransformer("BAAI/bge-m3", model_kwargs={"torch_dtype": torch.bfloat16})
-#    loss = CachedGISTEmbedLoss(model, guide, temperature=MNRL_TEMPERATURE)
 
     # ── Training arguments ────────────────────────────────────────────────────
     total_steps = (len(train_ds) * EPOCHS) // (PER_DEVICE_BATCH * GRAD_ACCUM * WORLD_SIZE)
@@ -213,8 +187,8 @@ def main():
         bf16=True,
         fp16=False,
         gradient_checkpointing=True,
-        gradient_checkpointing_kwargs={"use_reentrant": False},  
-        ddp_find_unused_parameters=True,    # ← change False → True
+        gradient_checkpointing_kwargs={"use_reentrant": False},
+        ddp_find_unused_parameters=True,
 
         # Checkpointing — save every 100 steps, keep last 10
         save_strategy="steps",
@@ -262,14 +236,14 @@ def main():
             f.write(f"""---
 base_model: BAAI/bge-m3
 tags:
-  - legal
+  - doc
   - embeddings
   - peft
   - lora
 ---
-# bge-m3-legal-euro-{RN} LoRA adapter
+# bge-m3-doc-{RN} LoRA adapter
 
-LoRA adapter (r={LORA_R}) fine-tuned on EU legal document embeddings.
+LoRA adapter (r={LORA_R}) fine-tuned on 4D doc document embeddings.
 Dataset: [{HF_DATASET}](https://huggingface.co/datasets/{HF_DATASET})
 
 ## Load
@@ -277,7 +251,7 @@ Dataset: [{HF_DATASET}](https://huggingface.co/datasets/{HF_DATASET})
 from peft import PeftModel
 from transformers import AutoModel
 base = AutoModel.from_pretrained("BAAI/bge-m3")
-model = PeftModel.from_pretrained(base, "keisuke-miyako/bge-m3-legal-euro-{RN}-adapter")
+model = PeftModel.from_pretrained(base, "{HF_USER}/bge-m3-doc-{RN}-adapter")
 ```
 """)
 
