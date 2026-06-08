@@ -313,9 +313,9 @@ from peft import PeftModel
 
 adapter = "${ADAPTER_DIR}"
 merged  = "${MERGED_DIR}"
-print(f"Loading base BAAI/bge-m3 ...")
-tokenizer = AutoTokenizer.from_pretrained("BAAI/bge-m3")
-base = AutoModel.from_pretrained("BAAI/bge-m3", torch_dtype=torch.float16)
+print(f"Loading fine tuned model ...")
+tokenizer = AutoTokenizer.from_pretrained("keisuke-miyako/bge-m3-doc-r1-merged")
+base = AutoModel.from_pretrained("keisuke-miyako/bge-m3-doc-r1-merged", torch_dtype=torch.float16)
 
 # Sanity: record a weight before merge
 ref_w = base.encoder.layer[0].attention.self.query.weight.detach().clone()
@@ -339,7 +339,7 @@ from huggingface_hub import hf_hub_download
 import shutil
 for fn in ["tokenizer.json", "tokenizer_config.json", "sentencepiece.bpe.model"]:
     try:
-        src = hf_hub_download(repo_id="BAAI/bge-m3", filename=fn)
+        src = hf_hub_download(repo_id="keisuke-miyako/bge-m3-doc-r1-merged", filename=fn)
         shutil.copy(src, os.path.join(merged, fn))
     except Exception:
         pass  # may already be present from tokenizer.save_pretrained
