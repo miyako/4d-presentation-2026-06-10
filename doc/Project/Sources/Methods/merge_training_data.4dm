@@ -16,9 +16,10 @@ $rowsPerFile:=100
 var $fileIndex; $negIndex : Integer
 $fileIndex:=1
 
+var $files; $lines; $posRow; $negRow : Collection
 $files:=$folder.files(fk recursive:K87:7).query("extension == :1"; ".json")
-//30310
-
+//r1: 30310
+//r2: 31027
 $lines:=[]
 $posRow:=[]
 $negRow:=[]
@@ -30,6 +31,8 @@ $allRecords:=[]
 var $passageToQueries : Object  // passage_hash -> collection of query hashes
 $passageToQueries:={}
 
+var $file : 4D:C1709.File
+var $jsonl : Object
 For each ($file; $files)
 	$jsonl:=JSON Parse:C1218($file.getText())
 	$allRecords.push($jsonl)
@@ -43,7 +46,8 @@ For each ($file; $files)
 		End if 
 	End for each 
 End for each 
-//5200 unique passsages (out of 124761)
+//r1: 5200 unique passsages (out of 124761)
+//r2: 5203 unique passsages (out of 124761)
 
 // Second pass: prune negatives that appear as positives
 For each ($jsonl; $allRecords)
@@ -85,9 +89,14 @@ If ($lines.length#0)
 	$exportFolder.file(String:C10($fileIndex; "00000")+".jsonl").setText($lines.join("\n"))
 End if 
 
+var $posAvg; $negAvg : Real
 $posAvg:=$posRow.average()
+//r1: 1.005
+//r2: 1.005
 $negAvg:=$negRow.average()
+//r1: 3.047
+//r2: 3.282
 
 var $totalRows; $prunedRows : Integer
-$totalRows:=$posRow.length  // records that survived pruning
+$totalRows:=$posRow.length  // 31027
 $prunedRows:=$allRecords.length-$totalRows

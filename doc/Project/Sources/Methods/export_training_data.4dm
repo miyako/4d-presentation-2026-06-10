@@ -93,6 +93,7 @@ While ($count*$batch<$hashes.length)
 			End for each 
 			//cast a wide net with low threshold
 			var $hardNegatives : cs:C1710.SearchSelection
+			var $search : cs:C1710.SearchEntity
 			For each ($search; $searches)
 				var $comparison:={vector: $search.embeddings; metric: mk cosine:K95:1; threshold: $hardNegativeThreshold}
 				

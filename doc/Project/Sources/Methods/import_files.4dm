@@ -37,7 +37,7 @@ For each ($file; $files)
 		$document.file:=$file
 		ARRAY LONGINT:C221($pos; 0)
 		ARRAY LONGINT:C221($len; 0)
-		var $path : Text
+		var $path; $language; $branch : Text
 		$path:=$document.file.path
 		If (Match regex:C1019("(?:developer\\.4d\\.com\\/docs\\/)(?:(fr|pt|ja|es)\\/)?(?:(18|19|20|21-R2)\\/)?"; $path; 1; $pos; $len))
 			$language:=Substring:C12($path; $pos{1}; $len{1})

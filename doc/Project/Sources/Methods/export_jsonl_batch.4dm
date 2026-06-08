@@ -20,27 +20,32 @@ var $passages : cs:C1710.PassageSelection
 var $passage : cs:C1710.PassageEntity
 var $languages : Collection
 $languages:=["en"]
-$passages:=ds:C1482.Passage.query("document.meta.version == :1"+\
+$passages:=ds:C1482.Document.query("meta.version == :1"+\
+" and meta.language in :2"+\
+" and not(file.path in :3)"; "21-R2"; $languages; ["@/commands/@"; "@/commands-legacy/@"]).passages
+/*
+en: 2380
+*/
+//$passages:=ds.Passage.query("document.meta.version == :1"+\
 " and document.meta.language in :2"; "21-R2"; $languages)
 /*
 en: 7774
 fr: 8713
 */
 var $provider; $model : Text
-$provider:="OpenAI"
+//$provider:="OpenAI"
 //$model:="gpt-5.4-mini"
-$model:="gpt-5.4"
-//$provider:="Anthropic"
-//$model:="claude-sonnet-4-6"
+//$model:="gpt-5.4"
+$provider:="Anthropic"
+$model:="claude-sonnet-4-6"
 
 For each ($passage; $passages)
 	var $language; $version; $text : Text
 	$language:=$passage.document.meta.language
 	$version:=$passage.document.meta.version
 	$text:=$passage.text
-	PROCESS 4D TAGS:C816($userPromptTemplate; $userPrompt; {text: $text; language: $language; version: $version})
+	PROCESS 4D TAGS:C816($userPromptTemplate; $userPrompt; {text: $text; language: $language; version: $version; n: 3})
 	var $json : Object
-	
 	Case of 
 		: ($provider="Anthropic")
 			$json:={params: {}}
