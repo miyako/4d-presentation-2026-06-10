@@ -71,7 +71,7 @@ End for each
 
 Case of 
 	: ($provider="Anthropic")
-		Folder:C1567(fk desktop folder:K87:19).file($provider+"-"+$model+"-batch-example.jsonl").setText(JSON Stringify:C1217($jsonl))
+		Folder:C1567(fk desktop folder:K87:19).file($provider+"-"+$model+"-batch-request.jsonl").setText(JSON Stringify:C1217($jsonl))
 	: ($provider="OpenAI")
-		Folder:C1567(fk desktop folder:K87:19).file($provider+"-"+$model+"-batch-example.jsonl").setText($jsonl.requests.join("\n"))
+		Folder:C1567(fk desktop folder:K87:19).file($provider+"-"+$model+"-batch-request.jsonl").setText($jsonl.requests.join("\n"))
 End case 
