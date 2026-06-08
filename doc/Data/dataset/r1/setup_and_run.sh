@@ -14,7 +14,7 @@ MERGED_REPO="${HF_USER}/bge-m3-doc-${RN}-merged"
 GGUF_REPO="${HF_USER}/bge-m3-doc-${RN}-gguf"
 CKPT_REPO="${HF_USER}/bge-m3-doc-${RN}-checkpoints"
 
-WORK_DIR="/workspace/bge_legal/${RN}"
+WORK_DIR="/workspace/bge_m3/${RN}"
 ADAPTER_DIR="${WORK_DIR}/adapter"
 MERGED_DIR="${WORK_DIR}/merged"
 GGUF_DIR="${WORK_DIR}/gguf"
@@ -286,7 +286,7 @@ print(f"CSV  saved -> {csv_path}")
 # --- Plot ---
 plt.figure(figsize=(10, 5))
 plt.plot(steps, losses, marker="o", markersize=2, linewidth=1.5)
-plt.title(f"bge-m3-legal-lora {RN} — Training Loss")
+plt.title(f"bge-m3-doc-lora {RN} — Training Loss")
 plt.xlabel("Step")
 plt.ylabel("Loss")
 plt.grid(True)
@@ -364,14 +364,14 @@ cat > "${GGUF_DIR}/README.md" <<EOF
 ---
 base_model: BAAI/bge-m3
 tags:
-  - legal
+  - doc
   - embeddings
   - gguf
   - bge-m3
 ---
 # bge-m3-doc-${RN} (GGUF q8_0)
 
-Fine-tuned on EU legal document embeddings.
+Fine-tuned on 4D doc document embeddings.
 Dataset: [${HF_DATASET}](https://huggingface.co/datasets/${HF_DATASET})
 
 ## Usage (llama.cpp)
