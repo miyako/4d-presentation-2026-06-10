@@ -30,6 +30,8 @@ SET TEXT TO PASTEBOARD:C523($stats.join("\r"))
 
 /*
 
+original BAAI/BGE-M3
+
 |Relevance|Min|Max|Average|
 |:-:|-:|-:|-:|
 |`3`|`0.39`|`0.83`|`0.65`
@@ -37,8 +39,7 @@ SET TEXT TO PASTEBOARD:C523($stats.join("\r"))
 |`1`|`0.31`|`0.82`|`0.58`
 |`0`|`0.21`|`0.65`|`0.40`
 
-GPT-5.4: 140M tokens, $17.12
-after LoRA round 1
+after LoRA r1
 
 |Relevance|Min|Max|Average|
 |:-:|-:|-:|-:|
