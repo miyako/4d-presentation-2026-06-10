@@ -2,14 +2,18 @@ var $homeFolder; $folder : 4D:C1709.Folder
 $homeFolder:=Folder:C1567(fk home folder:K87:24).folder(".GGUF")
 $folder:=$homeFolder.folder("bge-m3")
 var $path : Text
+var $URL : Text
 
 Case of 
 	: (File:C1566(Data file:C490; fk platform path:K87:2).name="original-bge-m3-data")
 		$path:="bge-m3-Q8_0.gguf"
+		$URL:="keisuke-miyako/bge-m3-gguf-q8_0"
 	: (File:C1566(Data file:C490; fk platform path:K87:2).name="finetuned-r1-bge-m3-data")
 		$path:="bge-m3-doc-r1-q8_0.gguf"
+		$URL:="keisuke-miyako/bge-m3-doc-r1-gguf"
 	Else 
 		$path:="bge-m3-doc-r1-q8_0.gguf"
+		$URL:="keisuke-miyako/bge-m3-doc-r1-gguf"
 End case 
 
 var $modelFile : 4D:C1709.File
@@ -18,35 +22,28 @@ ASSERT:C1129($modelFile.exists)
 Extract SET OPTION(Extract Option Tokenizer File; $modelFile)
 
 Use (Storage:C1525)
-	Storage:C1525.port:=New shared object:C1526("embeddings"; 7001; "reranker"; 7002)
+	Storage:C1525.port:=New shared object:C1526("embeddings"; 7001; "reranker"; 7002; "chatCompletion"; 7003)
 End use 
 
 var $llama : cs:C1710.llama.llama
 var $huggingfaces : cs:C1710.event.huggingfaces
-var $embeddings; $rerank : cs:C1710.event.huggingface
+var $embeddings; $rerank; $chat : cs:C1710.event.huggingface
 
 var $file : 4D:C1709.File
-var $URL : Text
 var $port : Integer
 
 var $event : cs:C1710.event.event
 $event:=cs:C1710.event.event.new()
 
-//$event.onError:=Formula(OnModelDownloaded)
-//$event.onSuccess:=Formula(OnModelDownloaded)
-//$event.onData:=Formula(LOG EVENT(Into 4D debug message; This.file.fullName+":"+String((This.range.end/This.range.length)*100; "###.00%")))
-//$event.onResponse:=Formula(LOG EVENT(Into 4D debug message; This.file.fullName+":download complete"))
-//$event.onTerminate:=Formula(LOG EVENT(Into 4D debug message; (["process"; $1.pid; "terminated!"].join(" "))))
-
 var $max_position_embeddings; $batch_size; $parallel; $threads; $batches : Integer
-
-$URL:="keisuke-miyako/bge-m3-gguf-q8_0"
-$URL:="keisuke-miyako/bge-m3-doc-r1-gguf"
 
 var $pooling; $cache_type_k; $cache_type_v : Text
 var $ubatch_size; $n_gpu_layers : Integer
 var $threads_batch : Integer
 var $options : Object
+
+var $ctx_size : Integer
+var $temp; $min_p; $top_k; $top_p; $repeat_penalty; $presence_penalty : Real
 
 $pooling:="cls"
 $ubatch_size:=512  //max_position_embeddings=8194, but for better granularity
@@ -125,4 +122,50 @@ cache_type_v: $cache_type_v}
 
 $rerank:=cs:C1710.event.huggingface.new($folder; $URL; $path)
 $huggingfaces:=cs:C1710.event.huggingfaces.new([$rerank])
+//$llama:=cs.llama.llama.new($port; $huggingfaces; $homeFolder; $options; $event)
+
+$folder:=$homeFolder.folder("qwen-3.5")
+$path:="Qwen3.5-2B-Q8_0.gguf"
+$URL:="unsloth/Qwen3.5-2B-GGUF"
+
+$logFile:=$folder.file("llama.log")
+$folder.create()
+If (Not:C34($logFile.exists))
+	$logFile.setContent(4D:C1709.Blob.new())
+End if 
+
+$temp:=0.2
+$min_p:=0.02
+$top_k:=20
+$top_p:=0.85
+$repeat_penalty:=1.05
+$presence_penalty:=0
+$ctx_size:=100000  //262144
+$batches:=1
+$ubatch_size:=128
+$threads:=4
+$batch_size:=$ubatch_size*4
+$port:=Storage:C1525.port.chatCompletion
+$options:={\
+ctx_size: $ctx_size; \
+batch_size: $batch_size; \
+ubatch_size: $ubatch_size; \
+parallel: $batches; \
+threads: $threads; \
+threads_batch: $threads_batch; \
+threads_http: $batches+1; \
+temp: $temp; \
+min_p: $min_p; \
+top_k: $top_k; \
+top_p: $top_p; \
+repeat_penalty: $repeat_penalty; \
+presence_penalty: $presence_penalty; \
+log_file: $logFile; \
+log_disable: False:C215; \
+n_gpu_layers: $n_gpu_layers; \
+jinja: True:C214; \
+reasoning_format: "deepseek"}
+
+$chat:=cs:C1710.event.huggingface.new($folder; $URL; $path)
+$huggingfaces:=cs:C1710.event.huggingfaces.new([$chat])
 $llama:=cs:C1710.llama.llama.new($port; $huggingfaces; $homeFolder; $options; $event)

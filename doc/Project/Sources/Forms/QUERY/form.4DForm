@@ -33,22 +33,23 @@
 					"height": 27,
 					"events": [
 						"onClick"
-					]
+					],
+					"defaultButton": true
 				},
 				"query": {
 					"type": "input",
-					"left": 20,
+					"left": 79,
 					"top": 20,
-					"width": 743,
+					"width": 663,
 					"height": 17,
 					"dataSource": "Form:C1466.query"
 				},
 				"text": {
 					"type": "input",
-					"left": 20,
-					"top": 65,
-					"width": 205,
-					"height": 353,
+					"left": 80,
+					"top": 110,
+					"width": 819,
+					"height": 125,
 					"dataSource": "Form:C1466.text",
 					"enterable": false,
 					"hideFocusRing": true,
@@ -59,10 +60,10 @@
 				},
 				"html": {
 					"type": "webArea",
-					"left": 245,
-					"top": 62,
-					"width": 654,
-					"height": 366,
+					"left": 15,
+					"top": 250,
+					"width": 884,
+					"height": 387,
 					"sizingX": "grow",
 					"sizingY": "grow",
 					"events": [
@@ -72,11 +73,47 @@
 					"method": "ObjectMethods/html.4dm",
 					"visibility": "hidden",
 					"contextMenu": "none"
+				},
+				"tools": {
+					"type": "input",
+					"left": 80,
+					"top": 50,
+					"width": 819,
+					"height": 49,
+					"enterable": false,
+					"dataSource": "Form:C1466.tools"
+				},
+				"Text1": {
+					"type": "text",
+					"text": "Query:",
+					"top": 20,
+					"left": 20,
+					"width": 54,
+					"height": 16,
+					"fontWeight": "bold"
+				},
+				"Text2": {
+					"type": "text",
+					"text": "Tool:",
+					"top": 50,
+					"left": 20,
+					"width": 54,
+					"height": 16,
+					"fontWeight": "bold"
+				},
+				"Text3": {
+					"type": "text",
+					"text": "Think:",
+					"top": 110,
+					"left": 20,
+					"width": 54,
+					"height": 16,
+					"fontWeight": "bold"
 				}
 			}
 		}
 	],
-	"geometryStamp": 42,
+	"geometryStamp": 176,
 	"formClass": "_Query",
 	"method": "method.4dm",
 	"editor": {

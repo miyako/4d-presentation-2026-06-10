@@ -3,9 +3,11 @@ property passage : Integer
 property provider : Text
 property tools : cs:C1710.Tools
 property tool_calls : Collection
-property text : Text
+property content : Text
 property messages : Collection
 property conversation : Text
+property queries : Collection
+property shouldAbort : Boolean
 
 Class extends _Agent
 
@@ -35,11 +37,13 @@ Class constructor($provider : Text; $model : Text)
 Function continueConversation($messages : Collection) : cs:C1710.AIKit.OpenAIChatCompletionsResult
 	
 	This:C1470.messages:=$messages
-	This:C1470.text:=""
+	This:C1470.content:=""
 	This:C1470.reasoning_content:=""
+	This:C1470.tool_calls:=[]
+	This:C1470.shouldAbort:=False:C215
 	
 	If (This:C1470.conversation#"")
-		This:C1470.conversation+="\r\r"
+		This:C1470.conversation+="\r"
 	End if 
 	
 	var $ChatCompletionsParameters : cs:C1710.AIKit.OpenAIChatCompletionsParameters
@@ -65,10 +69,11 @@ Function startConversation($messages : Collection; $onResponse : 4D:C1709.Functi
 	End if 
 	
 	This:C1470.conversation:=""
-	This:C1470.tool_calls:=[]
+	This:C1470.queries:=[]
 	
+	OBJECT SET VALUE:C1742("tools"; "")
 	OBJECT SET VALUE:C1742("text"; This:C1470.conversation)
-	WA EXECUTE JAVASCRIPT FUNCTION:C1043(*; "html"; "renderMarkdown"; *; "")
+	WA EXECUTE JAVASCRIPT FUNCTION:C1043(*; "html"; "renderMarkdown"; *; This:C1470.conversation)
 	
 	return This:C1470.clearConversation().continueConversation($messages)
 	
@@ -78,46 +83,68 @@ Function onCompletion($chatCompletionsResult : cs:C1710.AIKit.OpenAIChatCompleti
 	$tools:=This:C1470.tools
 	
 	Case of 
+		: ($ChatCompletionsResult.choice=Null:C1517)
+			OBJECT SET TITLE:C194(*; "search"; "Search")
 		: ($ChatCompletionsResult.choice.finish_reason="length")
 			This:C1470.conversation:="too many tokens!"
+			OBJECT SET VALUE:C1742("text"; This:C1470.conversation)
+			WA EXECUTE JAVASCRIPT FUNCTION:C1043(*; "html"; "renderMarkdown"; *; This:C1470.conversation)
+			OBJECT SET TITLE:C194(*; "search"; "Search")
 		: ($ChatCompletionsResult.choice.finish_reason="stop")
-			This:C1470.messages.push({role: "assistant"; content: This:C1470.text})
+			This:C1470.messages.push({role: "assistant"; content: This:C1470.content})
+			OBJECT SET TITLE:C194(*; "search"; "Search")
 		: ($ChatCompletionsResult.choice.finish_reason="tool_calls")
 			var $messages : Collection
 			$messages:=This:C1470.messages
+			//tool_call, without content
 			$messages.push({role: "assistant"; content: Null:C1517; tool_calls: This:C1470.tool_calls})
 			var $tool_call : Object
 			For each ($tool_call; This:C1470.tool_calls)
-				var $arguments : Object
-				$arguments:=Try(JSON Parse:C1218($tool_call.function.arguments))
 				If (Not:C34(OB Instance of:C1731(This:C1470.tools[$tool_call.function.name]; 4D:C1709.Function)))
 					continue
 				End if 
-				$tool_call.content:=This:C1470.tools[$tool_call.function.name].call(This:C1470; $arguments)
+				var $tool : Object
+				$tool:=OB Copy:C1225($tool_call)  //tool_call, with content
+				var $arguments : Object
+				$arguments:=Try(JSON Parse:C1218($tool_call.function.arguments; Is object:K8:27))
+				If ($arguments=Null:C1517)
+					continue
+				End if 
+				$tool.content:=This:C1470.tools[$tool_call.function.name].call(This:C1470; $arguments)
 				$messages.push({\
 					role: "tool"; \
-					tool_call_id: $tool_call.id; \
-					name: $tool_call.function.name; \
-					content: JSON Stringify:C1217($tool_call.content)})
+					tool_call_id: $tool.id; \
+					name: $tool.function.name; \
+					content: JSON Stringify:C1217($tool.content)})
+				This:C1470.queries.push($arguments.query)
 			End for each 
 			This:C1470.continueConversation($messages)
+			OBJECT SET VALUE:C1742("tools"; This:C1470.queries.join(","))
 	End case 
 	
 	If (OB Instance of:C1731(This:C1470._onResponse; 4D:C1709.Function))
 		This:C1470._onResponse.call(This:C1470; $chatCompletionsResult)
 	End if 
 	
+Function stopConversation()
+	
+	This:C1470.shouldAbort:=True:C214
+	
 Function onEventStream($chatCompletionsResult : cs:C1710.AIKit.OpenAIChatCompletionsResult)
+	
+	If (This:C1470.shouldAbort) && (Not:C34($chatCompletionsResult.terminated))
+		$chatCompletionsResult.request.terminate()
+		return 
+	End if 
 	
 	If ($chatCompletionsResult.success)
 		If ($chatCompletionsResult.terminated)
 			//complete result
 			If ($chatCompletionsResult.choice#Null:C1517)
-				If ($chatCompletionsResult.choice.message=Null:C1517)  //streaming
-					//restore cached partial results
-					$chatCompletionsResult:=JSON Parse:C1218(JSON Stringify:C1217($chatCompletionsResult))
-					$chatCompletionsResult.choice.message:={role: "assistant"; content: This:C1470.text}
-				Else   //not streaming
+				If ($chatCompletionsResult.choice.message=Null:C1517)
+					//streaming, content already captured 
+				Else 
+					//not streaming, get content here
 					If ($chatCompletionsResult.choice.message.content#Null:C1517)
 						This:C1470.conversation+=$chatCompletionsResult.choice.message.content
 					End if 
@@ -130,11 +157,8 @@ Function onEventStream($chatCompletionsResult : cs:C1710.AIKit.OpenAIChatComplet
 			//partial result
 			var $end : Integer
 			If ($ChatCompletionsResult.choice.delta.text#Null:C1517)
-				This:C1470.text+=$ChatCompletionsResult.choice.delta.text
+				This:C1470.content+=$ChatCompletionsResult.choice.delta.text
 				This:C1470.conversation+=$ChatCompletionsResult.choice.delta.text
-				$end:=Length:C16(This:C1470.conversation)+1
-				OBJECT SET VALUE:C1742("text"; This:C1470.conversation)
-				HIGHLIGHT TEXT:C210(*; "text"; $end; $end)
 				var $md : Text
 				$md:=Replace string:C233(This:C1470.conversation; "\r"; "\r\n"; *)
 				WA EXECUTE JAVASCRIPT FUNCTION:C1043(*; "html"; "renderMarkdown"; *; $md)
@@ -142,8 +166,7 @@ Function onEventStream($chatCompletionsResult : cs:C1710.AIKit.OpenAIChatComplet
 			If ($ChatCompletionsResult.choice.delta["reasoning_content"]#Null:C1517)
 				This:C1470.reasoning_content+=$ChatCompletionsResult.choice.delta["reasoning_content"]
 				$end:=Length:C16(This:C1470.reasoning_content)+1
-				OBJECT SET VALUE:C1742("reasoning_content"; This:C1470.reasoning_content)
-				HIGHLIGHT TEXT:C210(*; "reasoning_content"; $end; $end)
+				OBJECT SET VALUE:C1742("text"; This:C1470.reasoning_content)
 			End if 
 			If ($ChatCompletionsResult.choice.delta.tool_calls#Null:C1517)
 				var $tool_call : Object
@@ -161,11 +184,9 @@ Function onEventStream($chatCompletionsResult : cs:C1710.AIKit.OpenAIChatComplet
 		End if 
 	Else 
 		If ($chatCompletionsResult.terminated)
-			This:C1470.reasoning_content+=$chatCompletionsResult.errors.extract("message").join("\r")
-			DELAY PROCESS:C323(Current process:C322; 60*30)
-			If (OB Instance of:C1731(This:C1470._onResponse; 4D:C1709.Function))
-				This:C1470._onResponse.call(This:C1470; $chatCompletionsResult)
-			End if 
+			This:C1470.reasoning_content:=$chatCompletionsResult.errors.extract("message").join("\r")
+			OBJECT SET VALUE:C1742("text"; This:C1470.reasoning_content)
+			This:C1470.onCompletion($chatCompletionsResult)
 		End if 
 	End if 
 	

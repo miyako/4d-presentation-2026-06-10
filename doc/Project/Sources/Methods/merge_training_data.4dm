@@ -19,7 +19,7 @@ $fileIndex:=1
 var $files; $lines; $posRow; $negRow : Collection
 $files:=$folder.files(fk recursive:K87:7).query("extension == :1"; ".json")
 //r1: 30310
-//r2: 31027
+//r2: 36784
 $lines:=[]
 $posRow:=[]
 $negRow:=[]
@@ -47,7 +47,7 @@ For each ($file; $files)
 	End for each 
 End for each 
 //r1: 5200 unique passsages (out of 124761)
-//r2: 5203 unique passsages (out of 124761)
+//r2: 5296 unique passsages (out of 124761)
 
 // Second pass: prune negatives that appear as positives
 For each ($jsonl; $allRecords)
@@ -92,11 +92,11 @@ End if
 var $posAvg; $negAvg : Real
 $posAvg:=$posRow.average()
 //r1: 1.005
-//r2: 1.005
+//r2: 1.002
 $negAvg:=$negRow.average()
 //r1: 3.047
-//r2: 3.282
+//r2: 2.948
 
 var $totalRows; $prunedRows : Integer
-$totalRows:=$posRow.length  // 31027
+$totalRows:=$posRow.length
 $prunedRows:=$allRecords.length-$totalRows

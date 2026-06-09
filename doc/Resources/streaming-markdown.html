@@ -534,6 +534,7 @@ marked.use({ gfm: true, breaks: true });
         container.querySelectorAll('pre code').forEach(block => {
             hljs.highlightElement(block);
         });
+        container.scrollIntoView({ block: 'end', behavior: 'smooth' });
     }
 
 /* ── Stream simulation ─────────────────────────────────────── */

@@ -3,11 +3,19 @@ property messages : Collection
 property systemPrompt : Text
 property userPromptTemplate : Text
 property agent : cs:C1710._AgentQuery
+property tools : Text
 
 Class constructor
 	
-	This:C1470.agent:=cs:C1710._AgentQuery.new("OpenAI"; "gpt-5.4")
+	//This.agent:=cs._AgentQuery.new("OpenAI"; "gpt-5.4")
+	This:C1470.agent:=cs:C1710._AgentQuery.new()
 	This:C1470.messages:=[]
+	
+Function stopSearch() : cs:C1710._Query
+	
+	This:C1470.agent.stopConversation()
+	
+	return This:C1470
 	
 Function search($query : Text; $clear : Boolean) : cs:C1710._Query
 	
@@ -49,7 +57,12 @@ Function onClicked($event : Object) : cs:C1710._Query
 	Case of 
 		: ($event.objectName="search")
 			
-			This:C1470.search(This:C1470.query)
+			If (OBJECT Get title:C1068(*; $event.objectName)="Search")
+				OBJECT SET TITLE:C194(*; $event.objectName; "Stop")
+				This:C1470.search(This:C1470.query; Macintosh option down:C545 || Macintosh command down:C546)
+			Else 
+				This:C1470.stopSearch()
+			End if 
 			
 	End case 
 	

@@ -8,6 +8,6 @@ Case of
 		
 	: ($event.code=On Clicked:K2:4)
 		
-		Form:C1466.onClicked($event; Macintosh option down:C545)
+		Form:C1466.onClicked($event)
 		
 End case 
