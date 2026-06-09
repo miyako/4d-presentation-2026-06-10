@@ -1,0 +1,8 @@
+## Parameters
+
+Language (639-1 country code that specifies documentation language): $4dtext($1.language)
+Version (4D version code that specifies product version): $4dtext($1.version)
+
+## Query Criteria
+
+Query: $4dtext($1.query)
