@@ -1,9 +1,9 @@
 //%attributes = {}
-TRUNCATE TABLE:C1051([Search:3])
-SET DATABASE PARAMETER:C642([Search:3]; Table sequence number:K37:31; 0)
+//TRUNCATE TABLE([Search])
+//SET DATABASE PARAMETER([Search]; Table sequence number; 0)
 
 var $files : Collection
-$files:=Folder:C1567("/DATA/prompts/responses").files().query("extension == :1"; ".jsonl")
+$files:=[File:C1566("/DATA/prompts/v2/Anthropic-claude-sonnet-4-6-batch-response.jsonl")]
 var $file : 4D:C1709.File
 For each ($file; $files)
 	var $jsonl : Collection
@@ -38,7 +38,7 @@ For each ($file; $files)
 		If ($content="")
 			continue
 		End if 
-		If (Match regex:C1019("^```json(?msi)(.+)```$"; $content; 1; $pos; $len))
+		If (Match regex:C1019("```json(?msi)(.+)```$"; $content; 1; $pos; $len))
 			$content:=Substring:C12($content; $pos{1}; $len{1})
 		End if 
 		var $results : Collection
@@ -66,6 +66,7 @@ For each ($file; $files)
 				$search.text:=$result.text
 				$search.hash:=Generate digest:C1147($result.text; SHA1 digest:K66:2)
 				$search.passage:=$passage
+				$search.meta:={model: "claude-sonnet-4-6"; provider: "Anthropic"}
 				$search.embeddings:=$embeddings.shift().embedding
 				$search.save()
 			End for each 

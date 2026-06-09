@@ -2,8 +2,16 @@ var $homeFolder; $folder : 4D:C1709.Folder
 $homeFolder:=Folder:C1567(fk home folder:K87:24).folder(".GGUF")
 $folder:=$homeFolder.folder("bge-m3")
 var $path : Text
-$path:="bge-m3-Q8_0.gguf"
-//$path:="bge-m3-doc-r1-q8_0.gguf"
+
+Case of 
+	: (File:C1566(Data file:C490; fk platform path:K87:2).name="original-bge-m3-data")
+		$path:="bge-m3-Q8_0.gguf"
+	: (File:C1566(Data file:C490; fk platform path:K87:2).name="finetuned-r1-bge-m3-data")
+		$path:="bge-m3-doc-r1-q8_0.gguf"
+	Else 
+		$path:="bge-m3-doc-r1-q8_0.gguf"
+End case 
+
 var $modelFile : 4D:C1709.File
 $modelFile:=$folder.file($path)
 ASSERT:C1129($modelFile.exists)

@@ -33,6 +33,7 @@
 		<field name="language" uuid="ED396CE843A242CAAAF75FE98186FB9D" type="10" limiting_length="2" id="6"/>
 		<field name="relevance" uuid="F7C3A69909004D7BBCF47EC434A50F35" type="3" id="7"/>
 		<field name="similarity" uuid="2CD1EA39C9A34A81B4A35F485FAECF41" type="6" id="8"/>
+		<field name="meta" uuid="0A051EBFBC9E49D082356CB70162BE22" type="21" blob_switch_size="2147483647" id="9"/>
 		<primary_key field_name="ID" field_uuid="C715FD8BAD7A41A68A28D27E4BAB98BD"/>
 	</table>
 	<relation uuid="528CC67102AB42E98C1704D317F843C0" name_Nto1="document" name_1toN="passages" state="1">
@@ -72,6 +73,11 @@
 	<index kind="regular" unique_keys="true" uuid="7033743C6025410BAE2C51AFFF4ABF2D" type="7">
 		<field_ref uuid="7A3DA6F8C8CC4903BDF2828681A5DD55" name="ID">
 			<table_ref uuid="C143AD88BAF440798D16D1519D81D168" name="Passage"/>
+		</field_ref>
+	</index>
+	<index kind="regular" uuid="9AC19991652E46C487A42C21B3F536CE" type="3">
+		<field_ref uuid="0A051EBFBC9E49D082356CB70162BE22" name="meta">
+			<table_ref uuid="5953B70661B9472B9AA2E0B9955A3CA7" name="Search"/>
 		</field_ref>
 	</index>
 	<index kind="regular" unique_keys="true" uuid="9BB0531F8B2D46BF8C0F65BA28F6146F" type="7">

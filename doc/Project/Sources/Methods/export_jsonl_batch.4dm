@@ -33,11 +33,11 @@ en: 7774
 fr: 8713
 */
 var $provider; $model : Text
-//$provider:="OpenAI"
+$provider:="OpenAI"
 //$model:="gpt-5.4-mini"
-//$model:="gpt-5.4"
-$provider:="Anthropic"
-$model:="claude-sonnet-4-6"
+$model:="gpt-5.4"
+//$provider:="Anthropic"
+//$model:="claude-sonnet-4-6"
 
 For each ($passage; $passages)
 	var $language; $version; $text : Text

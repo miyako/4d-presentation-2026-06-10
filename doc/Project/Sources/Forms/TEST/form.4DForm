@@ -61,7 +61,38 @@
 							"resizable": false,
 							"dataSource": "This:C1470.file.fullName",
 							"truncateMode": "none",
-							"width": 600
+							"width": 500
+						},
+						{
+							"header": {
+								"name": "Header3",
+								"text": "Lang.",
+								"iconPlacement": "none"
+							},
+							"name": "Column3",
+							"enterable": false,
+							"resizable": false,
+							"dataSource": "This:C1470.meta.language",
+							"footer": {
+								"name": "Footer3"
+							},
+							"textAlign": "center",
+							"width": 40
+						},
+						{
+							"header": {
+								"name": "Header4",
+								"text": "Ver."
+							},
+							"name": "Column4",
+							"resizable": false,
+							"enterable": false,
+							"dataSource": "This:C1470.meta.version",
+							"textAlign": "center",
+							"width": 40,
+							"footer": {
+								"name": "Footer4"
+							}
 						},
 						{
 							"header": {
@@ -138,7 +169,7 @@
 				},
 				"rul.threshold": {
 					"type": "ruler",
-					"left": 20,
+					"left": 57,
 					"top": 77,
 					"width": 160,
 					"height": 17,
@@ -148,31 +179,33 @@
 					"step": 0.1,
 					"dataSourceTypeHint": "number"
 				},
-				"Input1": {
-					"type": "input",
-					"left": 577,
-					"top": 40,
-					"width": 116,
-					"height": 17,
-					"dataSource": "Form:C1466.document.ID",
-					"enterable": false
-				},
 				"threshold": {
 					"type": "input",
-					"left": 189,
-					"top": 76,
+					"left": 20,
+					"top": 77,
 					"width": 31,
 					"height": 17,
 					"dataSource": "Form:C1466.threshold",
 					"dataSourceTypeHint": "number",
 					"enterable": false,
 					"borderStyle": "none",
-					"fill": "transparent"
+					"fill": "transparent",
+					"focusable": false
+				},
+				"duration": {
+					"type": "input",
+					"left": 577,
+					"top": 20,
+					"width": 116,
+					"height": 17,
+					"dataSource": "Form:C1466.duration",
+					"enterable": false,
+					"dataSourceTypeHint": "number"
 				}
 			}
 		}
 	],
-	"geometryStamp": 162,
+	"geometryStamp": 184,
 	"editor": {
 		"activeView": "View 1",
 		"defaultView": "View 1",
@@ -180,5 +213,6 @@
 			"View 1": {}
 		}
 	},
-	"method": "method.4dm"
+	"method": "method.4dm",
+	"formClass": "_Test"
 }
