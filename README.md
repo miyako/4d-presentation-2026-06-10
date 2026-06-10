@@ -1059,3 +1059,463 @@ The numbers shed light on the model's capability in the context of my specific a
 3. The gaps between levels 1, 2, and 3 are narrow. This means the model struggles to distinguish a genuine match from a closely related but non-matching passage. Ideally the four levels should be spread more equally, and this is what fine-tuning aims to address.
 
 The goal of fine-tuning is to widen the gaps between levels, to push level 3 scores higher and level 0 scores lower, without disturbing the order. After each training session I will run the same benchmark to measure progress.
+
+## Part 9: Synthetic Data
+
+To fine-tune an embedding model, you need training data. Just like training with weights at the gym, the data must be challenging enough for the model to improve performance but not so hard that it degrades performance on examples it already handles well. In practice, that means you feed the model hard negatives.
+
+#### Hard Negatives
+
+A hard negative, from an embedding model's point of view, is a passage that scores a high cosine similarity against a query but does not have much in common in terms of substance. 
+
+We can use the four-level relevance tag to find such cases from the synthetic dataset. Any passage that has a high cosine similarity and a low relevance tag is a potential hard negative. That sounds simple enough, but there is a catch; we only have definitive information, or ground truth, about a query and the passage that was used to generate the query. For all other queries, we can't say for certain whether the passage is actually relevant or not. We need either a human or an advanced LLM to judge each case. That can become time-consuming and very expensive. As a reasonable facsimile, we can use a specialised LLM known as a reranker.
+
+#### Reranker
+
+Unlike a bi-encoder embedding model which evaluates each passage in isolation, a cross-encoder reranker model evaluates each passage as it relates to the specific query. The result is a score that better represents  its relevance to the query than cosine similarity alone. When mining training data, a reranker model serves two distinct purposes: to remove potential false negatives and to promote the really hard negatives.
+
+Here is a sample of a hard negative mined using a reranker:
+
+|&nbsp;|Text|Relevance Score
+|-|-|-|
+|Query|set form object choice list by name command required excluded list|
+|Positive|[OBJECT SET LIST BY NAME](https://developer.4d.com/docs/21-R2/commands/object-set-list-by-name)|
+|Negative| [OBJECT SET LIST BY REFERENCE](https://developer.4d.com/docs/21-R2/commands/object-set-list-by-reference)|`0.54013139457482`
+|Negative|[DELETE FROM LIST](https://developer.4d.com/docs/21-R2/commands/delete-from-list)|`0.46814724511658`
+
+`llama-server` supports the OpenAI compatible `v1/reranker` endpoint. 4D AI Kit does not natively support this endpoint so you need to use the low level HTTPRequest. For the purpose of this demo I create a fork of the official AI Kit repository and added reranker support.
+
+https://github.com/miyako/AIKit
+
+Here is the code to start a 2nd instance of `llama-server` with a reranker model. Notice the `reranking` option which is set to `True` and the `pooling` option which is set to `"rank"`.
+
+```4d
+$folder:=$homeFolder.folder("ettin-reranker")
+$path:="ettin-reranker-1b-v1-Q8_0.gguf"
+$URL:="keisuke-miyako/ettin-reranker-v1-gguf"
+
+$pooling:="rank"
+$ubatch_size:=1024  //ettin uses more tokens than BGE M3
+$n_gpu_layers:=-1
+
+$logFile:=$folder.file("llama.log")
+$folder.create()
+If (Not($logFile.exists))
+	$logFile.setContent(4D.Blob.new())
+End if 
+
+$batches:=10  //may increase with P cores
+$threads:=$batches  //input; tokenisers
+$threads_batch:=1  //output; GPU does the heavy lifting
+
+$port:=Storage.port.reranker
+$options:={\
+reranking: True; \
+pooling: $pooling; \
+ctx_size: $ubatch_size*$batches; \
+batch_size: $ubatch_size*$batches; \
+ubatch_size: $ubatch_size; \
+parallel: $batches; \
+threads: $threads; \
+threads_batch: $threads_batch; \
+threads_http: $batches+1; \
+log_file: $logFile; \
+log_disable: False; \
+n_gpu_layers: $n_gpu_layers}
+
+$rerank:=cs.event.huggingface.new($folder; $URL; $path)
+$huggingfaces:=cs.event.huggingfaces.new([$rerank])
+$llama:=cs.llama.llama.new($port; $huggingfaces; $homeFolder; $options; $event)
+```
+
+#### Export Training Dataset
+
+Here is the complete code to find (or "mine" to use the technical term) hard negatives:
+
+```4d
+//sequential vector query may display progress window
+MESSAGES OFF
+
+var $Rn : Text
+$Rn:="r1"
+
+var $folder : 4D.Folder
+$folder:=Folder([""; "DATA"; "dataset"; $Rn].join("/"))
+$folder.create()
+
+var $rerankerFolder : 4D.Folder
+$rerankerFolder:=$folder.folder("reranker")
+$rerankerFolder.create()
+
+var $reranker : Object
+$reranker:=cs.Reranker.new()
+
+//use the number folders to track progress and resume
+var $batch; $count : Integer
+$batch:=100
+$count:=$rerankerFolder.folders().length
+
+var $negativeThreshold; $positiveThreshold; $hardNegativeThreshold : Real
+$negativeThreshold:=0.65  
+$positiveThreshold:=0.85  
+$hardNegativeThreshold:=0.35
+
+//some queries are identical
+var $hashes : Collection
+$hashes:=ds.Search.all().distinct("hash")
+
+While ($count*$batch<$hashes.length)
+	var $subFolder : 4D.Folder
+	$subFolder:=$rerankerFolder.folder(String($count+1; "00000"))
+	$subFolder.create()
+	var $queryHashes : Collection
+	$queryHashes:=$hashes.slice($count*$batch; ($count*$batch)+$batch)
+	var $hash : Text
+	For each ($hash; $queryHashes)
+		var $lv : Integer
+		For each ($lv; [3; 2; 1])
+			//find passage(s) for this query and level; normally 1, but occasionally more 
+			var $searches : cs.SearchSelection
+			$searches:=ds.Search.query("hash == :1 and relevance == :2"; $hash; $lv)
+			If ($searches.length=0)
+				continue
+			End if 
+			
+			var $embeddings : Collection
+			$embeddings:=$searches.embeddings
+			var $positivePassages : cs.PassageSelection
+			$positivePassages:=$searches.passage
+			
+			//document(s) to which the passage(s) belong
+			var $documentIds; $positives; $negatives : Collection
+			$documentIds:=$positivePassages.document.ID
+			var $passage : cs.PassageEntity
+			$positives:=[]
+			$negatives:=[]
+			//for debug purposes; not needed for training
+			var $negative_relevance_scores : Collection
+			$negative_relevance_scores:=[]
+			If ($positivePassages.length=0)
+				continue
+			End if 
+			var $positiveHashes; $negativeHashes : Collection
+			$positiveHashes:=[]
+			$negativeHashes:=[]
+			var $positivePassage : cs.PassageEntity
+			For each ($positivePassage; $positivePassages)
+				If ($positiveHashes.indexOf($positivePassage.hash)=-1)
+					$positiveHashes.push($positivePassage.hash)
+					$positives.push($positivePassage.text)
+				End if 
+			End for each 
+			//cast a wide net with low threshold
+			var $hardNegatives : cs.SearchSelection
+			For each ($search; $searches)
+				var $comparison:={vector: $search.embeddings; metric: mk cosine; threshold: $hardNegativeThreshold}
+				
+				$hardNegatives:=ds.Search.query("embeddings > :1 and relevance < :2 "+\
+				"    and not(passage.DocumentID in :3) "+\
+				"    and not(passage.hash in :4) "+\
+				"    and not(passage.hash in :5)"; \
+				$comparison; $lv; $documentIds; $positiveHashes; $negativeHashes)
+				
+				var $negativePassages : cs.PassageSelection
+				$negativePassages:=$hardNegatives.passage
+				If ($negativePassages.length=0)
+					//no hard negatives
+					continue
+				End if 
+				var $top_k : Integer
+				$top_k:=7
+				var $f : 4D.Function
+				$f:=Formula(This.embeddings.cosineSimilarity($search.embeddings))
+				$negativePassages:=$negativePassages.orderByFormula($f; dk descending).slice(0; $top_k)
+				var $text; $negativeHash : Collection
+				$text:=$negativePassages.text
+				$negativeHash:=$negativePassages.hash
+				var $negativeEmbeddings : Collection
+				$negativeEmbeddings:=$negativePassages.embeddings
+				var $status : Object
+				$status:=$reranker.rerank($search.text; $text)
+				If ($status.success)
+					var $result : Object
+					For each ($result; $status.results)
+						Case of 
+							: ($result.relevance_score>$negativeThreshold)
+								//prune false negatives
+							Else 
+								var $tooSimilar : Boolean
+								$tooSimilar:=False
+								For each ($passage; $positivePassages)
+									//deduplication against positives
+									If ($passage.embeddings.cosineSimilarity($negativeEmbeddings[$result.index])>$positiveThreshold)
+										$tooSimilar:=True
+										break
+									End if 
+								End for each 
+								If (Not($tooSimilar))
+									
+									If ($negativeHashes.indexOf($negativeHash[$result.index])=-1)
+										$negativeHashes.push($negativeHash[$result.index])
+										$negatives.push($text[$result.index])
+										$negative_relevance_scores.push($result.relevance_score)
+									End if 
+									
+								End if 
+						End case 
+					End for each 
+				Else 
+					continue
+				End if 
+			End for each 
+			
+			If ($negatives.length=0)
+				//no hard negatives
+				continue
+			End if 
+			
+			var $jsonl : Object
+			$jsonl:={}
+			$jsonl.query:=$searches.first().text
+			$jsonl.pos:=$positives
+			$jsonl.neg:=$negatives
+			$jsonl.relevance_score:=$negative_relevance_scores
+			$jsonl.pos_hash:=$positiveHashes
+			$jsonl.neg_hash:=$negativeHashes
+			
+			$subFolder.file($hash+"-"+String($lv)+".json").setText(JSON Stringify($jsonl))
+		End for each 
+	End for each 
+	$count:=$rerankerFolder.folders().length
+End while 
+```
+
+The implementation uses three arbitrary thresholds:
+
+```4d
+$negativeThreshold:=0.65  
+$positiveThreshold:=0.85  
+$hardNegativeThreshold:=0.35
+```
+
+- `0.65`: Any negative passage above this relevance score is removed from training data. There is a possibility that the negative passage is actually a positive. 
+- `0.85`: Any negative passage above this cosine similarity is removed from training data. There is a possibility that the negative passage is actually a positive.
+- `0.35`: Any negative passage below this cosine similarity is removed from training data. The data is too dissimilar to the query, there is little value to be gained in training. 
+
+If I lower the mining standard, I can expect more training data from the same dataset. The numbers above are quite aggressive for fine-tuning BGE M3. I chose quality over quantity.
+
+When I ran the method on a 2021 MacBook Pro M1, about `30` rows of training data were generated every minute. In total, `30310` rows were generated in `17` hours. Once all the rows are exported, I run a check method to make sure the same passage does not appear as both positive and negative in the same batch. 
+
+```4d
+var $Rn : Text
+$Rn:="r1"
+
+var $folder : 4D.Folder
+$folder:=Folder([""; "DATA"; "dataset"; $Rn].join("/"))
+ASSERT($folder.exists)
+
+var $exportFolder : 4D.Folder
+$exportFolder:=$folder.folder("export")
+$exportFolder.create()
+
+var $rowsPerFile : Integer
+$rowsPerFile:=100
+
+var $fileIndex; $negIndex : Integer
+$fileIndex:=1
+
+$files:=$folder.files(fk recursive).query("extension == :1"; ".json")
+
+$lines:=[]
+$posRow:=[]
+$negRow:=[]
+
+var $allRecords : Collection
+$allRecords:=[]
+var $passageToQueries : Object  
+$passageToQueries:={}
+
+For each ($file; $files)
+	$jsonl:=JSON Parse($file.getText())
+	$allRecords.push($jsonl)
+	var $posHash : Text
+	For each ($posHash; $jsonl.pos_hash)
+		If ($passageToQueries[$posHash]=Null)
+			$passageToQueries[$posHash]:=[]
+		End if 
+		If ($passageToQueries[$posHash].indexOf($jsonl.query)=-1)
+			$passageToQueries[$posHash].push($jsonl.query)
+		End if 
+	End for each 
+End for each 
+
+For each ($jsonl; $allRecords)
+	var $cleanNeg : Collection
+	$cleanNeg:=[]
+	$negIndex:=0
+	var $negHash : Text
+	For each ($negHash; $jsonl.neg_hash)
+		var $isPositiveForThisQuery : Boolean
+		$isPositiveForThisQuery:=False
+		If ($passageToQueries[$negHash]#Null)
+			If ($passageToQueries[$negHash].indexOf($jsonl.query)#-1)
+				$isPositiveForThisQuery:=True
+			End if 
+		End if 
+		If (Not($isPositiveForThisQuery))
+			$cleanNeg.push($jsonl.neg.at($negIndex))
+		End if 
+		$negIndex+=1
+	End for each 
+	If ($cleanNeg.length=0)
+		continue
+	End if 
+	$jsonl.neg:=$cleanNeg
+	OB REMOVE($jsonl; "relevance_score")
+	OB REMOVE($jsonl; "pos_hash")
+	OB REMOVE($jsonl; "neg_hash")
+	$posRow.push($jsonl.pos.length)
+	$negRow.push($jsonl.neg.length)
+	$lines.push(JSON Stringify($jsonl))
+	If ($lines.length=$rowsPerFile)
+		$exportFolder.file(String($fileIndex; "00000")+".jsonl").setText($lines.join("\n"))
+		$fileIndex+=1
+		$lines:=[]
+	End if 
+End for each 
+
+If ($lines.length#0)
+	$exportFolder.file(String($fileIndex; "00000")+".jsonl").setText($lines.join("\n"))
+End if 
+
+$posAvg:=$posRow.average()
+$negAvg:=$negRow.average()
+
+var $totalRows; $prunedRows : Integer
+$totalRows:=$posRow.length  // records that survived pruning
+$prunedRows:=$allRecords.length-$totalRows
+```
+
+Some interesting stats: 
+
+- Number of queries: `30310` 
+- Average positive passage per query: `1.005`
+- Average negative passage per query: `3.047`
+
+The complete training dataset is publicly available on Hugging Face for anyone who wants to reproduce or build on this work:
+
+https://huggingface.co/datasets/keisuke-miyako/doc-2026-0607
+
+Now I just need to rent a powerful GPU to train the model.
+
+## Part 10: LoRA
+
+LoRA (Low Rank Adaptation) is a fine-tuning technique that uses an adapter to adjust a small subset of attention heads so that domain-specific nuances and semantics are more sharply represented than the original model. Only the adapters are trained, which dramatically reduces GPU memory requirements. The adapter can be removed or replaced without modifying the base model.
+
+The model is rewarded by the loss function for embedding positive passages close to the query and penalised for embedding negative passages close to it. This combination of query, positives, and negatives is called a triplet. Triplets are passed to the GPU in batches; passages from other rows in the same batch serve as additional negatives — a technique called in-batch negatives. The learning rate follows a schedule: it rises gradually during a warm-up phase, holds steady, then decays toward the end. This prevents the model from memorising the training data (overfitting) or changing so drastically that it loses general capability (catastrophic forgetting).
+
+### Learning Loss
+
+Ideally the model should make lots of mistakes at first, improve rapidly, and continue learning until it reaches a plateau.   
+
+<img width="500" height="auto" alt="b93470bacf5f027270b554e493729226cb33ab20_2_1380x690" src="https://github.com/user-attachments/assets/605fcf2e-948e-4bc3-978f-2d721a27a35f" />
+
+### Revised Benchmark
+
+The learning loss is a gauge to measure the efficacy of LoRA fine-tuning but the numbers by themselves don't reveal whether the model has improved or not. For that you need to reevaluate the minimum, maximum, average of each query grouped by relevance using the fine-tuned model. 
+
+#### Original BGE M3
+
+|Relevance|Min|Max|Average|
+|:-:|-:|-:|-:|
+|`3`|`0.39`|`0.83`|`0.65`
+|`2`|`0.34`|`0.80`|`0.62`
+|`1`|`0.31`|`0.82`|`0.58`
+|`0`|`0.21`|`0.65`|`0.40`
+
+#### Fine-tuned BGE M3
+
+|Relevance|Min|Max|Average|
+|:-:|-:|-:|-:|
+|`3`|`0.42`|`0.89`|`0.67`
+|`2`|`0.23`|`0.85`|`0.63`
+|`1`|`0.27`|`0.83`|`0.58`
+|`0`|`0.05`|`0.70`|`0.31`
+
+The level 0 average has dropped from `0.40` to `0.31` while the level 3 average has risen from `0.65` to `0.67`. The gap between a genuine match and an irrelevant passage has widened, which is precisely what fine-tuning was meant to achieve.
+
+The search results for "create a new entry filter in toolbox" have changed to:
+
+| Cosine Similarity Threshold | Number of Matches | Page |
+|:---|:---|:---|
+|  `0.57`|`2`|[Entry](https://developer.4d.com/docs/21-R2/FormObjects/propertiesEntry)<br />[EDIT ITEM (English)](https://developer.4d.com/docs/21-R2/commands/edit-item)
+|`0.56`|`3`|[EDIT ITEM (Portuguese)](https://developer.4d.com/docs/pt/commands/edit-item)
+|`0.55`|`5`|[EDIT ITEM (Japanese)](https://developer.4d.com/docs/ja/commands/edit-item)<br />[EDIT ITEM (Spanish)](https://developer.4d.com/docs/es/commands/edit-item)
+
+The results may seem odd but the "Entry" page actually contains the highly relevant passage:
+>  Most of the time, you can use one of the built-in filters of 4D for what you need; however, you can also create and use custom filters:
+> you can directly enter a filter definition string or you can enter the name of an entry filter created in the Filters editor in the Toolbox. The names of custom filters you create begin with a vertical bar (|).
+
+The "EDIT ITEM" page is about input and includes links to `FILTER KEYSTROKE` which is the next command in alphabetical order.
+
+The model seems to be better at some retrieval tasks but there is still room for improvement. The next step is to generate hard negatives again, this time using the fine-tuned model. LoRA is an iterative process. Each time the model is refined, it becomes better at finding more edge cases which can be used for more training. 
+
+## RunPod
+
+[RunPod](https://www.runpod.io) is a cloud computing platform designed for AI developers and researchers to rent powerful GPUs on demand. Instead of buying expensive hardware, users can quickly launch pre-configured GPU environments to train, test, and deploy machine learning models. For a one-off training run it is far more practical than buying hardware. 
+
+GPUs are located across the globe and availability fluctuates constantly according to demand. You are invoiced by the clock, not resources, so it is important to rent and release the GPU and storage promptly. If managed appropriately, the cost is very reasonable as shown in the tutorial below. 
+
+#### Create an account or sign in to RunPod
+
+<img width="500" height="auto" alt="b9b8e0883f5e4f36a1deccd4bbd7cfe196ce1273_2_1380x866" src="https://github.com/user-attachments/assets/f62dc5fb-164b-42a4-a901-8630d0a9e9d0" />
+
+#### Find a GPU
+
+<img width="500" height="auto" alt="09840e559ba5ac103c3aeab28f4df7c1808794fd_2_1380x866" src="https://github.com/user-attachments/assets/82104dc5-3386-4c05-945d-df68ce3dc413" />
+
+#### Create or attach a Network Volume
+
+<img width="500" height="auto" alt="4f5cf0e51cf0a7bf810eaf534a6d4f8ccd87abfc_2_1380x866" src="https://github.com/user-attachments/assets/d4dfd9a7-3519-4a2d-ba18-4999360c2a7c" />
+
+The network volume must reside in the same region as the GPU (Canada in this example)
+
+<img width="500" height="auto" alt="04647c43081131b9dfbbb829ed685f0d680e05ef_2_1380x866" src="https://github.com/user-attachments/assets/fa342483-66ed-4ed0-b8f3-cef75be0f88b" />
+
+When the GPU and network volume are ready, open *Jupyter*, the online console application.
+
+<img width="500" height="auto" alt="61fcb72d723ec70162ffd9832e31e559d4796c02_2_1380x866" src="https://github.com/user-attachments/assets/34a95ad6-6326-44e8-8fb4-78bbc0587640" />
+
+<img width="500" height="auto" alt="fc00650065da089f835c12925fcf084e31365bee_2_1380x866" src="https://github.com/user-attachments/assets/45ed0e59-0d39-4d6a-8f2c-53bddf627264" />
+
+
+#### Upload Python Script
+
+- [train.py](https://github.com/miyako/4d-presentation-2026-06-10/blob/main/doc/Data/dataset/r1/train.py)
+- [setup_and_run.sh](https://github.com/miyako/4d-presentation-2026-06-10/blob/main/doc/Data/dataset/r1/setup_and_run.sh)
+
+Register API keys:
+
+```sh
+export RUNPOD_API_KEY=rpa_***
+export HF_TOKEN=hf_***
+```
+
+Run the script
+
+```sh
+bash ./setup_and_run.sh
+```
+
+#### Remember to delete the storage when you no longer need it
+
+<img width="500" height="auto" alt="3bb6e0239e0ea12f58a5719c960c3e9ab403d116_2_1380x866" src="https://github.com/user-attachments/assets/dcfa573c-5eb9-4cb3-a713-cec4a74adb11" />
+
+- Cost of training: $7.19 (GPU) + $0.01 (storage)
+- Time spent on training: 1 hour (BGE M3 on 4×A100 PCle)
+
+<img width="500" height="auto" alt="8f2344095503351f414a9041318ee3be30c6ac58_2_1380x410" src="https://github.com/user-attachments/assets/d2059ea2-bc02-40e7-ab31-98e1c21dc1db" />
+
+The computing resources required for training are basically proportional to data size. In this example, every passage is capped at `509` tokens. Jumping to `8192`, the technical ceiling for BGE M3, would be a 16× increase in sequence length, which means up to 256× more memory for the attention computation. Optimisations like flash attention reduce this in practice, but the increase is still dramatic. 
+
+For a document retrieval system, the complete passage may be thousands of tokens long but the query string is typically very short. Training a model using full documents might not improve semantic search quality. It is generally more effective to split the documents into chapters, paragraphs or chunks with a small overlap.
