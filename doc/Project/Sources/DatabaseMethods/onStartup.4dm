@@ -140,7 +140,7 @@ If (Not:C34($logFile.exists))
 	$logFile.setContent(4D:C1709.Blob.new())
 End if 
 
-$temp:=0.35
+$temp:=0.2
 $min_p:=0.02
 //let min_p do the work
 //$top_k:=20
