@@ -60,9 +60,16 @@ Function KnowledgeBase($arguments : Object) : Object
 		$documents:=ds:C1482.Document.query("meta.version == :1"+\
 			" and meta.language == :2"; $version; $language; $queryParams)
 		var $comparison : Object
-		$comparison:={vector: $vector; metric: mk cosine:K95:1; threshold: 0.6}
-		$documents:=$documents.query("passages.embeddings > :1"; $comparison; $queryParams)
+		var $threshold : Real
+		For each ($threshold; [0.6; 0.58; 0.56; 0.54])
+			$comparison:={vector: $vector; metric: mk cosine:K95:1; threshold: $threshold}
+			$documents:=$documents.query("passages.embeddings > :1"; $comparison; $queryParams)
+			If ($documents.length#0)
+				break
+			End if 
+		End for each 
 		return {text: $documents.passages.text}
 	End if 
 	
-	return {text: "not found"}
+	return {text: "No matching results found."; \
+		hint: "Do not retry this query. Summarise what you know or ask the user for clarification."}
