@@ -18,3 +18,5 @@ doc/Data/data.4DIndx
 doc/secrets/api-keys.txt
 doc/Data/finetuned-r1-bge-m3-data*
 doc/Data/original-bge-m3-data*
+doc/Data/finetuned-r2-bge-m3-data*
+doc/Data/finetuned-r3-bge-m3-data*
