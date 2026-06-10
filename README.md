@@ -341,6 +341,385 @@ For reference, here are the scores from popular open-weight models. The globe in
 A two-sentence benchmark is far from a definitive evaluation. These are contrived examples, and a model that struggles here may excel on other tasks. That said, two observations are worth noting:
 
 - The "spread" matters more than absolute scores. A model that scores high on similar passages is only good if it also scores low on dissimilar passages. 
--  Several multilingual models outperform their English-only counterparts on both discrimination and absolute score.
+- Several multilingual models outperform their English-only counterparts on both discrimination and absolute score.
 
+## Part 4: Startup Explained
 
+### File Paths
+
+The `llama cpp` component downloads a model from Hugging Face if `$URL` is a Hugging Face resource identifier (`account/repo`). Alternatively you can specify a full HTTP URL that points to a `.zip` file.
+
+Pass the relative file path of the `.GGUF` file in `$path`. `.GGUF` is the composite file format used by `llama.cpp` that stores the model, tokeniser, and meta data related to the model. The downloaded `.GGUF` file is stored locally in `$folder`.  
+
+This path is different from where popular applications like **Ollama**, **LM Studio**, or the Hugging Face CLI store model files. It can be changed if necessary.
+
+```4d
+$homeFolder:=Folder(fk home folder).folder(".GGUF")
+$folder:=$homeFolder.folder("bge-m3")
+$URL:="keisuke-miyako/bge-m3-gguf-q8_0"
+$path:="bge-m3-Q8_0.gguf"
+```
+
+`llama-server` is a console program which means it has no interactive feedback. It is recommended to activate the log file to monitor its activity.
+
+```4d
+$logFile:=$folder.file("llama.log")
+$folder.create()
+If (Not($logFile.exists))
+	$logFile.setContent(4D.Blob.new())
+End if 
+```
+
+### Options
+
+`llama-server` has many command line arguments. Use the following principle to pass any option:
+
+- Omit the `--` prefix: `--embeddings` → `embeddings`
+- Replace hyphen with underscore: `--ctx-size` → `ctx_size`    
+- Pass boolean, number, string, 4D.File, 4D.Folder values directly
+- Pass a collection to use the same argument multiple times
+
+The following values are tuned for a machine with Apple Silicon and moderate parallelism:
+
+```4d
+$ubatch_size:=512 
+$n_gpu_layers:=-1
+$batches:=16  
+$threads:=$batches  
+$threads_batch:=1  
+
+$options:={\
+embeddings: True; \
+pooling: $pooling; \
+ctx_size: $ubatch_size*$batches; \
+batch_size: $ubatch_size*$batches; \
+ubatch_size: $ubatch_size; \
+parallel: $batches; \
+threads: $threads; \
+threads_batch: $threads_batch; \
+threads_http: $batches+1; \
+log_file: $logFile; \
+log_disable: False; \
+n_gpu_layers: $n_gpu_layers}
+``` 
+
+- `embeddings`: Always `True` to activate the `/v1/embeddings` endpoint.
+- `pooling`: The pooling mode as specified by the model. `last`, `mean`, `cls`. 
+- `ctx_size`: The amount of memory to reserve for parallel processing. Must be large enough to contain every prompt of every parallel batch.
+- `batch_size`: The amount of memory to reserve for processing. Must be a multiple of `ubatch_size`.
+- `ubatch_size`: The unit size used to allocate batch_size. For encoder-only models, must be large enough to contain the full prompt.
+- `parallel`: Number of slots to allocate per request. should match the number of batches in a single request. Should reflect VRAM size.
+- `threads`: Number of outputs to process (decode) in parallel. Should reflect number of CPU cores.
+- `threads_batch`: Number of inputs to process (encode) in parallel. Should reflect number of CPU cores.
+- `threads_http`: Number of requests to accept. Good practice to reserve `1` for status check.
+- `log_file`: The file to redirect console outputs.
+- `log_disable`: `False` to activate logging.
+- `n_gpu_layers`: Number of layers to process on the GPU.
+
+### Memory Size
+
+Memory size is the most visible and consequential of all the options. `llama-server` is engineered to take full advantage of available CPU, GPU, RAM, and VRAM. But you need to strike the right balance. In particular, you need to take into account the model's architecture, tokeniser, and how you "batch" your requests.
+
+#### Architecture
+
+Currently there are 2 distinct types of embedding models: decoder and bi-encoder. From the previous table, `Qwen3-Embedding-0.6B` is the only decoder model. All other models are bi-encoders. 
+
+A decoder model is designed to process the input sequentially, similar to a generative LLM. The complete prompt does not need to fit in memory, which partially explained their long context window. By contrast, a bi-encoder model places the entire prompt in memory. 
+
+`ubatch_size` is the smallest unit of memory used by the server to handle the input. For a bi-encoder model, this size must be large enough to contain the entire prompt. For a decoder model, the `ubatch_size` can be smaller, as long as the prompt fits in `ctx_size`.
+
+#### Tokeniser
+
+The prompt size is counted in tokens, not bytes, characters, or words. You can post text to the `/tokenize` endpoint of `llama-server` to invoke the tokeniser and count the exact number of tokens. A rule of thumb is to assume `3` to `4` tokens per word. Some tokenisers can only handle a specific group of languages. A prompt in an unsupported language may result in a large number of "UNK (unknown)" tokens, which results in low quality embeddings.
+
+The model usually adds special tokens such as "BOS (beginning of text)" and "EOS (end of text)" to the tokenised prompt text. `batch_size` must be slightly larger than `ubatch_size` to accommodate these tokens. 
+
+#### Batch
+
+You can send a single text, an array of texts, or an array of tokens to the `v1/embeddings` endpoint. The array format is highly recommended if a GPU is available. Increase `parallel` to let the server send several batches to the VRAM. 
+
+`llama-server` runs its HTTP server on the CPU. Increase `threads_http` if simultaneous requests are expected. 
+
+The tokeniser is also executed on the CPU, but this part is rarely the bottleneck. Normally you do not need to scale `threads_batch` for simultaneous requests or multiple batches. Instead you should increase `threads` to handle multiple incoming requests. You may also increase `threads` to better handle multiple outgoing responses.  
+
+LLMs have internal transformer layers for data processing. For embedding models, all such layers can be off-loaded to the GPU for parallel processing. Pass `99` or `-1` to off-load all layers. This setting is applicable for Macs with Apple Silicon chips or Windows with GPUs.
+
+### Port Number
+
+There are two ways to publish multiple models.
+
+- Option 1: Run multiple instances on different TCP port numbers.
+- Option 2: Specify where `.GGUF` files are stored with `models_dir`
+- Option 3: Specify `models_preset` 
+
+Example of router mode:
+
+```4d
+var $iniFile : 4D.File
+var $ini : Collection
+
+$ini:=[]
+$ini.push("version = 1")
+
+$ini.push("[embeddinggemma]")
+$ini.push("model = "+$homeFolder.file("embeddinggemma-300m/embeddinggemma-300m-Q8_0.gguf").path)
+$ini.push("pooling = mean")
+
+$ini.push("[bge-m3]")
+$ini.push("model = "+$homeFolder.file("bge-m3/bge-m3-Q8_0.gguf").path)
+$ini.push("pooling = cls")
+
+$port:=8888
+$folder:=$homeFolder.folder("llama-"+String($port))
+
+$iniFile:=$folder.file("models.ini")
+$iniFile.setText($ini.join("\n"))
+
+$options:={\
+embeddings: True; \
+models_preset: $iniFile; \
+ctx_size: $max_position_embeddings*$batches; \
+batch_size: $batch_size*$batches; \
+ubatch_size: $ubatch_size; \
+parallel: $batches; \
+threads: $threads; \
+threads_batch: $threads_batch; \
+threads_http: $batches+1; \
+log_file: $logFile; \
+log_disable: False; \
+n_gpu_layers: $n_gpu_layers}
+
+$llama:=cs.llama.llama.new($port; Null; $homeFolder; $options; $event)
+```
+
+Example of multiple instances:
+
+```4d
+$folder:=$homeFolder.folder("embeddinggemma-300m")
+$path:="embeddinggemma-300m-Q8_0.gguf"
+$URL:="keisuke-miyako/embeddinggemma-300m-gguf-q8_0"
+
+$pooling:="mean"
+	
+$logFile:=$folder.file("llama.log")
+$folder.create()
+If (Not:C34($logFile.exists))
+	$logFile.setContent(4D:C1709.Blob.new())
+End if 
+
+$port:=Storage:C1525.ports.embeddinggemma
+$options:={\
+	embeddings: True:C214; \
+	pooling: $pooling; \
+	ctx_size: $max_position_embeddings*$batches; \
+	batch_size: $batch_size*$batches; \
+	ubatch_size: $ubatch_size; \
+	parallel: $batches; \
+	threads: $threads; \
+	threads_batch: $threads_batch; \
+	threads_http: $batches+1; \
+	log_file: $logFile; \
+	log_disable: False:C215; \
+	n_gpu_layers: $n_gpu_layers}
+
+$embeddings:=cs:C1710.event.huggingface.new($folder; $URL; $path)
+$huggingfaces:=cs:C1710.event.huggingfaces.new([$embeddings])
+$llama:=cs:C1710.llama.llama.new($port; $huggingfaces; $homeFolder; $options; $event)
+
+$folder:=$homeFolder.folder("bge-m3")
+$path:="bge-m3-Q8_0.gguf"
+$URL:="keisuke-miyako/bge-m3-gguf-q8_0"
+
+$pooling:="cls"
+
+$logFile:=$folder.file("llama.log")
+$folder.create()
+If (Not:C34($logFile.exists))
+	$logFile.setContent(4D:C1709.Blob.new())
+End if 
+
+$port:=Storage:C1525.ports.m3
+$options:={\
+	embeddings: True:C214; \
+	pooling: $pooling; \
+	ctx_size: $max_position_embeddings*$batches; \
+	batch_size: $batch_size*$batches; \
+	ubatch_size: $ubatch_size; \
+	parallel: $batches; \
+	threads: $threads; \
+	threads_batch: $threads_batch; \
+	threads_http: $batches+1; \
+	log_file: $logFile; \
+	log_disable: False:C215; \
+	n_gpu_layers: $n_gpu_layers}
+
+$embeddings:=cs:C1710.event.huggingface.new($folder; $URL; $path)
+$huggingfaces:=cs:C1710.event.huggingfaces.new([$embeddings])
+$llama:=cs:C1710.llama.llama.new($port; $huggingfaces; $homeFolder; $options; $event)
+```
+> [!Note]
+> Router model internally launches multiple instances of `llama-server` as child processes.
+
+## Part 6: Sample Application
+
+For the rest of this discussion I will use a small 4D application that implements semantic search. I need a corpus of documents to search. Here is my structure definition:
+
+<img width="500" height="auto" alt="730a30578b7b31845f8282d34f93b37b0cdd5a4d_2_1380x810" src="https://github.com/user-attachments/assets/db24bd64-451a-4d53-90e8-769f184f7ff0" />
+
+I download HTML version of the documentation site from GitHub.
+
+#### Create a static local copy of developer.4d.com
+
+> - create a new folder "server" (or any name)
+> - in a new shell, set current directory
+> - `git clone https://github.com/4d/docs.git`
+> - switch to branch `gh-pages`
+> - `npx serve ./`
+> - open `http://localhost:3000/docs` in browser to confirm the site is running
+> - create a new folder "mirror" (or any name)
+> - in a new shell, set current directory
+>  ```sh
+> wget --mirror \
+>       --convert-links \
+>       --adjust-extension \
+>       --page-requisites \
+>       --no-parent \
+>       http://localhost:3000/docs/
+> ```
+
+I use my ["extract"](https://github.com/miyako/4d-plugin-extract) plugin to import the document in chunks. 
+
+```4d
+var $task : Object
+$task:={file: $file; \
+	text_as_tokens: False; \
+	tokens_length: 509; \
+	overlap_ratio: 0.09; \
+	unique_values_only: False; \
+	pooling_mode: Extract Pooling Mode CLS}
+	var $extracted : Object
+	$extracted:=Extract(Extract Document HTML; Extract Output Collection; $task)
+```
+
+The plugin does two things: extract plain text from HTML (the [HTML Tidy](https://github.com/htacg/tidy-html5) library is used internally) and split the text into chunks capped by token length. In the above example, the chunks are no longer than `509` tokens and have a `9%` overlap.
+
+During startup, the plugin loads the tokeniser from a `.GGUF` file. This is the same `.GGUF` that I use to generate embeddings. It is important to use the same tokeniser for chunking and embedding to accurately count the number of tokens. 
+
+```4d
+var $homeFolder; $folder : 4D.Folder
+$homeFolder:=Folder(fk home folder).folder(".GGUF")
+$folder:=$homeFolder.folder("bge-m3")
+var $path : Text
+$path:="bge-m3-Q8_0.gguf"
+var $modelFile : 4D.File
+$modelFile:=$folder.file($path)
+ASSERT($modelFile.exists)
+Extract SET OPTION(Extract Option Tokenizer File; $modelFile)
+```
+
+I store the `4D.File` object in the `Document` table and the embeddings of each chunk in the `Passage` table.
+
+```4d
+$docsFolder:=Folder("/DATA/developer.4d.com/docs/")
+$files:=$docsFolder.files(fk recursive | fk ignore invisible).query("extension == :1"; ".html")
+//33970 files
+var $file : 4D.File
+For each ($file; $files)
+	var $task : Object
+	$task:={file: $file; \
+	text_as_tokens: False; \
+	tokens_length: 509; \
+	overlap_ratio: 0.09; \
+	unique_values_only: False; \
+	pooling_mode: Extract Pooling Mode CLS}
+	var $extracted : Object
+	$extracted:=Extract(Extract Document HTML; Extract Output Collection; $task)
+	If ($extracted.success)
+		var $document : cs.DocumentEntity
+		$document:=ds.Document.new()
+		$document.file:=$file
+		ARRAY LONGINT($pos; 0)
+		ARRAY LONGINT($len; 0)
+		var $path : Text
+		$path:=$document.file.path
+		If (Match regex("(?:developer\\.4d\\.com\\/docs\\/)(?:(fr|pt|ja|es)\\/)?(?:(18|19|20|21-R2)\\/)?"; $path; 1; $pos; $len))
+			$language:=Substring($path; $pos{1}; $len{1})
+			$language:=$language="" ? "en" : $language
+			$branch:=Substring($path; $pos{2}; $len{2})
+			$branch:=$branch="" ? "21-R3" : $branch
+		End if 
+		$document.meta:={version: $branch; language: $language}
+		$document.save()
+		var $embeddings : Collection
+		var $cosineSimilarity : Real
+		var $params : cs.AIKit.OpenAIEmbeddingsParameters
+		$params:=cs.AIKit.OpenAIEmbeddingsParameters.new()
+		var $batch : Object
+		$batch:=$client.embeddings.create($extracted.input; $model; $params)
+		If ($batch.success)
+			$embeddings:=$batch.embeddings
+			var $text : Text
+			For each ($text; $extracted.input)
+				var $passage : cs.PassageEntity
+				$passage:=ds.Passage.new()
+				$passage.document:=$document
+				$passage.text:=$text
+				$passage.hash:=Generate digest($text; SHA1 digest)
+				$passage.embeddings:=$embeddings.shift().embedding
+				$passage.save()
+			End for each 
+		End if 
+	End if 
+End for each 
+```
+
+Notice I pass the value returned from the plugin (`$extracted.input`, a collection) directly to AI Kit. I am taking advantage of batch processing by `llama-server`, thanks to Apple Silicon and GPU off-loading.
+
+In total, `124761` passages from `30140` documents were imported. That would be `4.14` passage per document, or an average of `2107` tokens per page.
+
+<img width="500" height="auto" alt="fec2d843dc0529ad2a21a65a0e6a9f6993dd1999_2_1328x1000" src="https://github.com/user-attachments/assets/534cb6a4-588f-49d7-8d50-367c4990369d" />
+
+At this point I can run a few queries to see that semantic search is working:
+
+```4d
+var $client : cs.AIKit.OpenAI
+$client:=cs.AIKit.OpenAI.new({baseURL: "http://127.0.0.1:"+String(Storage.port.embeddings)+"/v1"})
+
+var $query : Text
+$query:="create a new entry filter in toolbox"
+
+var $params : cs.AIKit.OpenAIEmbeddingsParameters
+$params:=cs.AIKit.OpenAIEmbeddingsParameters.new()
+var $batch : Object
+$batch:=$client.embeddings.create($query)
+
+If ($batch.success)
+	var $embedding : 4D.Vector
+	$embedding:=$batch.embedding.embedding
+	var $comparison:={vector: $embedding; metric: mk cosine; threshold: 0.61}
+	var $documents : cs.DocumentSelection
+	$documents:=ds.Document.query("meta.version == :1 and passages.embeddings > :2"; "21-R2"; $comparison)
+	var $document : cs.DocumentEntity
+	For each ($document; $documents.slice(0; 4))
+		OPEN URL($document.file.platformPath)
+	End for each 
+End if 
+```
+
+Here are the results for the query "create a new entry filter in toolbox" at decreasing thresholds:
+
+|Cosine Similarity Threshold|Number of Matches|Page
+|-|-|-|
+|0.61|1|[OBJECT SET FILTER (English)](https://developer.4d.com/docs/commands/object-set-filter)
+|0.60|1|
+|0.59|1|
+|0.58|2|[OBJECT SET FILTER (Japanese)](https://developer.4d.com/docs/ja/commands/object-set-filter)
+|0.57|2|
+|0.56|2|
+|0.55|6|[ $savedfilter (English)](https://developer.4d.com/docs/21-R2/REST/savedfilter)<br />[Collection (English)](https://developer.4d.com/docs/21-R2/Concepts/collection)<br />[VP SET TABLE COLUMN ATTRIBUTES (English)](https://developer.4d.com/docs/21-R2/ViewPro/commands/vp-set-table-column-attributes)<br />[VP SET TABLE COLUMN ATTRIBUTES (Spanish)](https://developer.4d.com/docs/es/21-R2/ViewPro/commands/vp-set-table-column-attributes)
+
+No matches were found above `0.62`. The first result at `0.61` is indeed about entry filters but it is about a command and not the toolbox.
+
+Matches added at lower thresholds are bad matches."Filter" in the REST API is different from entry filters in the user interface. Likewise, the `Colllection.filter()` member function has nothing to do with entry filters.
+
+This is a pattern typical of a semantic search against a heterogenous dataset.
