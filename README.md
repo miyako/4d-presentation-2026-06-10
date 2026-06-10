@@ -2,7 +2,27 @@
 
 ### Wednesday, June 10, 2026, 12:00 noon, CDT `UTC−5:00`
 
-## embeddings project
+## Part 1: Embeddings
+
+For most of the 2000s, computer search relied on matching exact keywords. Wildcards (the `@` symbol in 4D) can only get you so far; synonyms, semantically similar expressions, or reference by pronouns are completely missed by simple lexical matching.
+
+The first breakthrough was the concept of **embeddings**. Instead of working with raw words, the system breaks words into **tokens** and pin them to a specific coordinate on a multi-dimensional vector space that represents language. The token's coordinate, or an *embedding*, becomes a numerical representation of its meaning. 
+
+If a space with hundreds of dimensions is hard to get your head around, imagine a point with hundreds of spikes stemming from it. On one axis, the word "orange" is connected to "lemon" (both are citrus fruits). On another axis, the same word is connected to "yellow" (both are warm colours). On yet another axis it is connected to "juice", and so on. 
+
+Every token is embedded in relation to every other token. The result is that distance in that high-dimensional space reflects semantic similarity. In practice, this means a search for "car" can return results about "vehicles" or "automobiles".
+
+Early systems such as **Word2Vec** (Google, 2013) or **GloVe** (Stanford, 2014) used **static embeddings**, where every token is assigned a fixed vector regardless of context. The improvement is that a database query can find misspelled words or synonyms. The limitation is that a word like "orange" gets the same embedding whether you're talking about fruit or colour.
+
+The next innovation came with **BERT** (Google, 2018), which uses the innovative **Transformer** architecture to create **contextual embeddings**, where the same words or sub-words are pinned to different coordinates depending on their surrounding context. This makes it possible to search by meaning rather than exact phrasing.
+
+### Key Points
+
+- An embedding is the coordinate of a token on a multi-dimensional representation of language.
+- An embedding encodes meaning and distance between embeddings represents semantic similarity. 
+- Modern systems assign embeddings in context, which captures nuance better than earlier static systems.
+
+
 
 Test cosine similarity (remote)
 
