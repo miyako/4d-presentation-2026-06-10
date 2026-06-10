@@ -11,6 +11,12 @@ Case of
 	: (File:C1566(Data file:C490; fk platform path:K87:2).name="finetuned-r1-bge-m3-data")
 		$path:="bge-m3-doc-r1-q8_0.gguf"
 		$URL:="keisuke-miyako/bge-m3-doc-r1-gguf"
+	: (File:C1566(Data file:C490; fk platform path:K87:2).name="finetuned-r2-bge-m3-data")
+		$path:="bge-m3-doc-r2-q8_0.gguf"
+		$URL:="keisuke-miyako/bge-m3-doc-r2-gguf"
+	: (File:C1566(Data file:C490; fk platform path:K87:2).name="finetuned-r3-bge-m3-data")
+		$path:="bge-m3-doc-r3-q8_0.gguf"
+		$URL:="keisuke-miyako/bge-m3-doc-r3-gguf"
 	Else 
 		$path:="bge-m3-doc-r1-q8_0.gguf"
 		$URL:="keisuke-miyako/bge-m3-doc-r1-gguf"
@@ -122,7 +128,7 @@ cache_type_v: $cache_type_v}
 
 $rerank:=cs:C1710.event.huggingface.new($folder; $URL; $path)
 $huggingfaces:=cs:C1710.event.huggingfaces.new([$rerank])
-//$llama:=cs.llama.llama.new($port; $huggingfaces; $homeFolder; $options; $event)
+$llama:=cs:C1710.llama.llama.new($port; $huggingfaces; $homeFolder; $options; $event)
 
 $folder:=$homeFolder.folder("qwen-3.5")
 $path:="Qwen3.5-2B-Q8_0.gguf"
@@ -134,12 +140,13 @@ If (Not:C34($logFile.exists))
 	$logFile.setContent(4D:C1709.Blob.new())
 End if 
 
-$temp:=0.2
+$temp:=0.35
 $min_p:=0.02
-$top_k:=20
+//let min_p do the work
+//$top_k:=20
 $top_p:=0.85
-$repeat_penalty:=1.05
-$presence_penalty:=0
+$repeat_penalty:=1.15  //penalise re-issuing the exact same tool call
+$presence_penalty:=0.15  //discourages repeating tokens that already appeared in the context, which helps break the loop at the token level.
 $ctx_size:=100000  //262144
 $batches:=1
 $ubatch_size:=128
@@ -156,7 +163,6 @@ threads_batch: $threads_batch; \
 threads_http: $batches+1; \
 temp: $temp; \
 min_p: $min_p; \
-top_k: $top_k; \
 top_p: $top_p; \
 repeat_penalty: $repeat_penalty; \
 presence_penalty: $presence_penalty; \
