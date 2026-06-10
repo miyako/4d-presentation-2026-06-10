@@ -13,11 +13,11 @@ $batch:=$client.embeddings.create($query)
 If ($batch.success)
 	var $embedding : 4D:C1709.Vector
 	$embedding:=$batch.embedding.embedding
-	var $comparison:={vector: $embedding; metric: mk cosine:K95:1; threshold: 0.55}
+	var $comparison:={vector: $embedding; metric: mk cosine:K95:1; threshold: 0.54}
 	var $documents : cs:C1710.DocumentSelection
 	$documents:=ds:C1482.Document.query("meta.version == :1 and passages.embeddings > :2"; "21-R2"; $comparison)
 	var $document : cs:C1710.DocumentEntity
 	For each ($document; $documents)
-		OPEN URL:C673($document.file.platformPath)  //15092
+		OPEN URL:C673($document.file.platformPath)
 	End for each 
 End if 

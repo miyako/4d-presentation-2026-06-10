@@ -2,6 +2,7 @@
 /*
 
 update ds.Search.all().embeddings
+run this after switching models
 
 */
 var $client : cs:C1710.AIKit.OpenAI

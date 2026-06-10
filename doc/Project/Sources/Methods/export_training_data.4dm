@@ -3,7 +3,7 @@
 MESSAGES OFF:C175
 
 var $Rn : Text
-$Rn:="r2"
+$Rn:="r3"
 
 var $folder : 4D:C1709.Folder
 $folder:=Folder:C1567([""; "DATA"; "dataset"; $Rn].join("/"))
@@ -21,14 +21,17 @@ var $batch; $count : Integer
 $batch:=100
 $count:=$rerankerFolder.folders().length
 
+var $top_k : Integer
 var $negativeThreshold; $positiveThreshold; $hardNegativeThreshold : Real
 
 Case of 
 	: ($Rn="r1")
+		$top_k:=7
 		$negativeThreshold:=0.65
 		$positiveThreshold:=0.85
 		$hardNegativeThreshold:=0.35
 	: ($Rn="r2")
+		$top_k:=7
 		$negativeThreshold:=0.6  //↓0.05: keep more hard negatives (prune less aggressively)
 		$positiveThreshold:=0.8  //↓0.05: keep negatives moderately similar to positives  
 		$hardNegativeThreshold:=0.5  //↑0.15: require topical adjacency for candidates
@@ -41,12 +44,17 @@ These three move in the same direction — harder, more numerous negatives
 which should address the flat relevance 1–2 performance from r1 
 while the cosine floor prevents you from drifting back into easy-negative territory.
 */
+	: ($Rn="r3")
+		$top_k:=4  //↓3: make sure cluster negatives don't over-represent
+		$negativeThreshold:=0.58  //↓0.02: let a few more borderline cases through
+		$positiveThreshold:=0.87  //↑0.07: do not let passages close to positives through
+		$hardNegativeThreshold:=0.5  //unchanged
 End case 
 
 //some queries are identical
 var $hashes : Collection
-$hashes:=ds:C1482.Search.all().distinct("hash")
-
+$hashes:=ds:C1482.Search.query("meta.provider == :1"; "Anthropic").distinct("hash")
+//Anthropic: 24465
 While ($count*$batch<$hashes.length)
 	var $subFolder : 4D:C1709.Folder
 	$subFolder:=$rerankerFolder.folder(String:C10($count+1; "00000"))
@@ -109,8 +117,6 @@ While ($count*$batch<$hashes.length)
 					//no hard negatives
 					continue
 				End if 
-				var $top_k : Integer
-				$top_k:=7
 				var $f : 4D:C1709.Function
 				$f:=Formula:C1597(This:C1470.embeddings.cosineSimilarity($search.embeddings))
 				$negativePassages:=$negativePassages.orderByFormula($f; dk descending:K85:32).slice(0; $top_k)

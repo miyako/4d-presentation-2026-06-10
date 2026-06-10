@@ -1,6 +1,6 @@
 //%attributes = {}
 var $Rn : Text
-$Rn:="r2"
+$Rn:="r3"
 
 var $folder : 4D:C1709.Folder
 $folder:=Folder:C1567([""; "DATA"; "dataset"; $Rn].join("/"))
@@ -20,6 +20,7 @@ var $files; $lines; $posRow; $negRow : Collection
 $files:=$folder.files(fk recursive:K87:7).query("extension == :1"; ".json")
 //r1: 30310
 //r2: 36784
+//r3: 17505
 $lines:=[]
 $posRow:=[]
 $negRow:=[]
@@ -48,7 +49,7 @@ For each ($file; $files)
 End for each 
 //r1: 5200 unique passsages (out of 124761)
 //r2: 5296 unique passsages (out of 124761)
-
+//r3: 2166 unique passsages (out of 124761)
 // Second pass: prune negatives that appear as positives
 For each ($jsonl; $allRecords)
 	var $cleanNeg : Collection
@@ -93,10 +94,11 @@ var $posAvg; $negAvg : Real
 $posAvg:=$posRow.average()
 //r1: 1.005
 //r2: 1.002
+//r3: 1.001
 $negAvg:=$negRow.average()
 //r1: 3.047
 //r2: 2.948
-
+//r3: 1.842
 var $totalRows; $prunedRows : Integer
 $totalRows:=$posRow.length
 $prunedRows:=$allRecords.length-$totalRows
