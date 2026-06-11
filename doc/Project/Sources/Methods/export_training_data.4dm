@@ -31,6 +31,11 @@ Case of
 		$positiveThreshold:=0.85
 		$hardNegativeThreshold:=0.35
 	: ($Rn="r2")
+		$top_k:=6
+		$negativeThreshold:=0.64
+		$positiveThreshold:=0.84
+		$hardNegativeThreshold:=0.36
+	: ($Rn="r2.x")
 		$top_k:=7
 		$negativeThreshold:=0.6  //↓0.05: keep more hard negatives (prune less aggressively)
 		$positiveThreshold:=0.8  //↓0.05: keep negatives moderately similar to positives  
@@ -44,7 +49,7 @@ These three move in the same direction — harder, more numerous negatives
 which should address the flat relevance 1–2 performance from r1 
 while the cosine floor prevents you from drifting back into easy-negative territory.
 */
-	: ($Rn="r3")
+	: ($Rn="r3.x")
 		$top_k:=4  //↓3: make sure cluster negatives don't over-represent
 		$negativeThreshold:=0.58  //↓0.02: let a few more borderline cases through
 		$positiveThreshold:=0.87  //↑0.07: do not let passages close to positives through
@@ -53,8 +58,8 @@ End case
 
 //some queries are identical
 var $hashes : Collection
-$hashes:=ds:C1482.Search.query("meta.provider == :1"; "Anthropic").distinct("hash")
-//Anthropic: 24465
+$hashes:=ds:C1482.Search.query("meta.provider == :1"; "Anthropic").hash  //.distinct("hash")
+//Anthropic: 24465(26244)
 While ($count*$batch<$hashes.length)
 	var $subFolder : 4D:C1709.Folder
 	$subFolder:=$rerankerFolder.folder(String:C10($count+1; "00000"))

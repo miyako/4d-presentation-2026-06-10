@@ -20,9 +20,18 @@ var $passages : cs:C1710.PassageSelection
 var $passage : cs:C1710.PassageEntity
 var $languages : Collection
 $languages:=["en"]
-$passages:=ds:C1482.Document.query("meta.version == :1"+\
+//$passages:=ds.Document.query("meta.version == :1"+\
 " and meta.language in :2"+\
 " and not(file.path in :3)"; "21-R2"; $languages; ["@/commands/@"; "@/commands-legacy/@"]).passages
+
+$passages:=ds:C1482.Document.query("meta.version == :1"+\
+" and meta.language in :2"+\
+" and file.path in :3"; "21-R2"; $languages; ["@/commands/@"; "@/commands-legacy/@"]).passages
+
+/*
+en: 5394 (lang)
+*/
+
 /*
 en: 2380
 */
@@ -33,11 +42,11 @@ en: 7774
 fr: 8713
 */
 var $provider; $model : Text
-$provider:="OpenAI"
+//$provider:="OpenAI"
 //$model:="gpt-5.4-mini"
-$model:="gpt-5.4"
-//$provider:="Anthropic"
-//$model:="claude-sonnet-4-6"
+//$model:="gpt-5.4"
+$provider:="Anthropic"
+$model:="claude-sonnet-4-6"
 
 For each ($passage; $passages)
 	var $language; $version; $text : Text

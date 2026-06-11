@@ -3,7 +3,7 @@
 //SET DATABASE PARAMETER([Search]; Table sequence number; 0)
 
 var $files : Collection
-$files:=[File:C1566("/DATA/prompts/v2/Anthropic-claude-sonnet-4-6-batch-response.jsonl")]
+$files:=Folder:C1567("/DATA/prompts/v3/").files().query("name == :1 and extension == :2"; "@response@"; ".jsonl")
 var $file : 4D:C1709.File
 For each ($file; $files)
 	var $jsonl : Collection
@@ -30,6 +30,9 @@ For each ($file; $files)
 				$type:="OpenAI"
 				$content:=$json.response.body.choices.first().message.content
 			: ($json.result#Null:C1517)
+				If ($json.result.type="errored")
+					continue
+				End if 
 				$type:="Anthropic"
 				$content:=$json.result.message.content.first().text
 			Else 
