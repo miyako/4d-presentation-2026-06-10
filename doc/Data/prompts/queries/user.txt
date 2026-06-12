@@ -14,5 +14,6 @@ $4dtext($1.text)
 Before generating queries:
 1. Strip boilerplate (nav, footer, See also, Properties metadata)
 2. State the passage type: [language reference | REST reference | design reference]
-3. Name the 2-3 core concepts a developer would search for
+3. Name the feature, concepts, or specification a developer would actually search for 
 4. Generate {n} queries at each relevance level (3, 2, 1, 0) for a total of {n}×4 queries
+5. Each query at each relevance level should materially different, not just paraphrases 
