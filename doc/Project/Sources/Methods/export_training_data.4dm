@@ -26,15 +26,15 @@ var $negativeThreshold; $positiveThreshold; $hardNegativeThreshold : Real
 
 Case of 
 	: ($Rn="r1")
+		$hardNegativeThreshold:=0.35
 		$top_k:=7
 		$negativeThreshold:=0.65
 		$positiveThreshold:=0.85
-		$hardNegativeThreshold:=0.35
-	: ($Rn="r2")
-		$top_k:=6
-		$negativeThreshold:=0.64
-		$positiveThreshold:=0.84
-		$hardNegativeThreshold:=0.36
+	: ($Rn="r3")
+		$hardNegativeThreshold:=0.55
+		$top_k:=5
+		$negativeThreshold:=0.65
+		$positiveThreshold:=0.85
 	: ($Rn="r2.x")
 		$top_k:=7
 		$negativeThreshold:=0.6  //↓0.05: keep more hard negatives (prune less aggressively)
@@ -58,8 +58,8 @@ End case
 
 //some queries are identical
 var $hashes : Collection
-$hashes:=ds:C1482.Search.query("meta.provider == :1"; "Anthropic").hash  //.distinct("hash")
-//Anthropic: 24465(26244)
+$hashes:=ds:C1482.Search.query("meta.provider == :1"; "Anthropic").distinct("hash")
+//Anthropic: 59660
 While ($count*$batch<$hashes.length)
 	var $subFolder : 4D:C1709.Folder
 	$subFolder:=$rerankerFolder.folder(String:C10($count+1; "00000"))
