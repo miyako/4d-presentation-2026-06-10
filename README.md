@@ -906,6 +906,10 @@ After some experiments, I notice that the more affordable GPT-5.4-mini model out
 
 After running a few more test to make sure the result is acceptable and cost is within control, I send a large batch to OpenAI and go to sleep. If all goes well, I will import the synthetic queries to my sample database and perform a comprehensive benchmark by sampling the cosine similarity scores for each relevance level.
 
+**Anthoropic**: You can download batches results from the API Console:
+
+<img width="500" height="auto" alt="Screenshot 2026-06-11 at 10 27 27" src="https://github.com/user-attachments/assets/dbbdbccc-549d-4a75-9749-9e24de93de4e" />
+
 #### Token Cost
 
 The batch request was a success and the total cost was `$17.12` for `140519072` tokens.
