@@ -3,7 +3,7 @@
 MESSAGES OFF:C175
 
 var $Rn : Text
-$Rn:="r3"
+$Rn:="r4"
 
 var $folder : 4D:C1709.Folder
 $folder:=Folder:C1567([""; "DATA"; "dataset"; $Rn].join("/"))
@@ -30,30 +30,21 @@ Case of
 		$top_k:=7
 		$negativeThreshold:=0.65
 		$positiveThreshold:=0.85
+	: ($Rn="r2")
+		$hardNegativeThreshold:=0.55  //↑, because the model is better
+		$top_k:=5  //↓, control clustering of similar false negatives 
+		$negativeThreshold:=0.65  //no need to move relevance, the reranker is the same
+		$positiveThreshold:=0.85  //ditto
 	: ($Rn="r3")
-		$hardNegativeThreshold:=0.55
+		$hardNegativeThreshold:=0.5  //↓, because the centre has shifted
 		$top_k:=5
-		$negativeThreshold:=0.65
-		$positiveThreshold:=0.85
-	: ($Rn="r2.x")
-		$top_k:=7
-		$negativeThreshold:=0.6  //↓0.05: keep more hard negatives (prune less aggressively)
-		$positiveThreshold:=0.8  //↓0.05: keep negatives moderately similar to positives  
-		$hardNegativeThreshold:=0.5  //↑0.15: require topical adjacency for candidates
-/*
-- Wider entry door for candidates (cosine ≥ 0.50 means they're genuinely hard)
-- Less aggressive pruning on exit (reranker threshold 0.60 keeps borderline cases)
-- Tighter dedup against positives (0.80 allows more distinct negatives through)
-		
-These three move in the same direction — harder, more numerous negatives 
-which should address the flat relevance 1–2 performance from r1 
-while the cosine floor prevents you from drifting back into easy-negative territory.
-*/
-	: ($Rn="r3.x")
-		$top_k:=4  //↓3: make sure cluster negatives don't over-represent
-		$negativeThreshold:=0.58  //↓0.02: let a few more borderline cases through
-		$positiveThreshold:=0.87  //↑0.07: do not let passages close to positives through
-		$hardNegativeThreshold:=0.5  //unchanged
+		$negativeThreshold:=0.6  //↓, prevent false negatives more agressively (WRONG CALL!)
+		$positiveThreshold:=0.75  //↓, prevent contradictions more carefully (WRONG CALL!)
+	: ($Rn="r4")
+		$hardNegativeThreshold:=0.57  //see benchmark
+		$top_k:=4
+		$negativeThreshold:=0.65  //reverted (see above)
+		$positiveThreshold:=0.85  //reverted (see above)
 End case 
 
 //some queries are identical
