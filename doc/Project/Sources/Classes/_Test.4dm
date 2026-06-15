@@ -6,10 +6,22 @@ property query : Text
 property vector : 4D:C1709.Vector
 property duration : Real
 property _query : cs:C1710.SearchEntity
+property _defaultThreshold : Real
 
 Class constructor
 	
-	This:C1470.threshold:=0.6
+	Case of 
+		: (File:C1566(Data file:C490; fk platform path:K87:2).name="original-bge-m3-data")
+			This:C1470._defaultThreshold:=0.6
+		: (File:C1566(Data file:C490; fk platform path:K87:2).name="finetuned-r1-bge-m3-data")
+			This:C1470._defaultThreshold:=0.6
+		: (File:C1566(Data file:C490; fk platform path:K87:2).name="finetuned-r2-bge-m3-data")
+			This:C1470._defaultThreshold:=0.59
+		Else 
+			This:C1470._defaultThreshold:=0.6
+	End case 
+	
+	This:C1470.threshold:=This:C1470._defaultThreshold
 	This:C1470.relevance:=3
 	
 Function onLoad($event : Object) : cs:C1710._Test
