@@ -31,7 +31,7 @@ HF_USER    = "keisuke-miyako"
 RN         = sys.argv[1] if len(sys.argv) > 1 else "r2"
 WORK_DIR   = sys.argv[2] if len(sys.argv) > 2 else f"/workspace/bge_m3/{RN}"
 CKPT_REPO  = sys.argv[3] if len(sys.argv) > 3 else f"{HF_USER}/bge-m3-doc-{RN}-checkpoints"
-HF_DATASET = sys.argv[4] if len(sys.argv) > 4 else f"{HF_USER}/doc-2026-0609"
+HF_DATASET = sys.argv[4] if len(sys.argv) > 4 else f"{HF_USER}/doc-2026-0612"
 RESUME     = sys.argv[5] if len(sys.argv) > 5 else None   # e.g. /workspace/.../checkpoint-1900
 HF_TOKEN   = os.environ.get("HF_TOKEN", "")
 
