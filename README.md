@@ -1049,10 +1049,10 @@ SET TEXT TO PASTEBOARD($stats.join("\r"))
 
 |Relevance|Min|Max|Average|
 |:-:|-:|-:|-:|
-|`3`|`0.39`|`0.83`|`0.65`
-|`2`|`0.34`|`0.80`|`0.62`
-|`1`|`0.31`|`0.82`|`0.58`
-|`0`|`0.21`|`0.65`|`0.40`
+|`3`|`0.33`|`0.83`|`0.63`
+|`2`|`0.28`|`0.81`|`0.60`
+|`1`|`0.31`|`0.82`|`0.57`
+|`0`|`0.21`|`0.69`|`0.43`
 
 The numbers shed light on the model's capability in the context of my specific application.
 
