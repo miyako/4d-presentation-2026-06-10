@@ -1428,8 +1428,6 @@ Ideally the model should make lots of mistakes at first, improve rapidly, and co
 
 The learning loss is a gauge to measure the efficacy of LoRA fine-tuning but the numbers by themselves don't reveal whether the model has improved or not. For that you need to reevaluate the minimum, maximum, average of each query grouped by relevance using the fine-tuned model. 
 
-### LoRA r1
-
 |Relevance|Min|Max|Average|
 |:-:|-:|-:|-:|
 |`3`|`0.42`|`0.89`|`0.67`
