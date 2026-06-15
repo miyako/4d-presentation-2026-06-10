@@ -1428,16 +1428,7 @@ Ideally the model should make lots of mistakes at first, improve rapidly, and co
 
 The learning loss is a gauge to measure the efficacy of LoRA fine-tuning but the numbers by themselves don't reveal whether the model has improved or not. For that you need to reevaluate the minimum, maximum, average of each query grouped by relevance using the fine-tuned model. 
 
-#### Original BGE M3
-
-|Relevance|Min|Max|Average|
-|:-:|-:|-:|-:|
-|`3`|`0.39`|`0.83`|`0.65`
-|`2`|`0.34`|`0.80`|`0.62`
-|`1`|`0.31`|`0.82`|`0.58`
-|`0`|`0.21`|`0.65`|`0.40`
-
-#### Fine-tuned BGE M3
+### LoRA r1
 
 |Relevance|Min|Max|Average|
 |:-:|-:|-:|-:|
@@ -1446,7 +1437,12 @@ The learning loss is a gauge to measure the efficacy of LoRA fine-tuning but the
 |`1`|`0.27`|`0.83`|`0.58`
 |`0`|`0.05`|`0.70`|`0.31`
 
-The level 0 average has dropped from `0.40` to `0.31` while the level 3 average has risen from `0.65` to `0.67`. The gap between a genuine match and an irrelevant passage has widened, which is precisely what fine-tuning was meant to achieve.
+- avg. spread: `0.36` (`+0.11`) 👍🏻
+- lv. 3 vs 2 is separated by `0.04` (`+0.01`) 👍🏻
+- lv. 3 vs 1 is separated by `0.05` (`+0.02`) 👍🏻
+- lv. 0 is separated at `0.31` (`-0.09`) 👍🏻
+
+The gap between a genuine match and an irrelevant passage has widened by `+0.11`, from `0.67` to `0.36`. This is very good. The level 0 average has dropped by `-0.09`, from `0.40` to `0.31`. This is also very good. 
 
 The search results for "create a new entry filter in toolbox" have changed to:
 
