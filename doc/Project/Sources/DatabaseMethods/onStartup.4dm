@@ -17,6 +17,9 @@ Case of
 	: (File:C1566(Data file:C490; fk platform path:K87:2).name="finetuned-r3-bge-m3-data")
 		$path:="bge-m3-doc-r3-q8_0.gguf"
 		$URL:="keisuke-miyako/bge-m3-doc-r3-gguf"
+	: (File:C1566(Data file:C490; fk platform path:K87:2).name="finetuned-r4-bge-m3-data")
+		$path:="bge-m3-doc-r4-q8_0.gguf"
+		$URL:="keisuke-miyako/bge-m3-doc-r4-gguf"
 	Else 
 		$path:="bge-m3-doc-r1-q8_0.gguf"
 		$URL:="keisuke-miyako/bge-m3-doc-r1-gguf"
