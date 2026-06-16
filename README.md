@@ -1700,3 +1700,13 @@ We have essentially entered the realm of **diminishing returns**. LoRA is doing 
 |0.61| `0.74` | `0.09` | `0.64`|
 
 - gap peak: `0.58`
+
+## Conclusion
+
+LoRA is an effective method for fine-tuning an already well adjusted off-the-shelf model like BGE M3. With a well curated dataset of domain-specific examples, the model can learn to separate genuine matches from hard negatives.   
+
+The first 2 rounds of LoRA is where you see the largest movements. It can be likened to golf, you hit the ball with a driver, then switch to irons, finally a putter when you reach the green. The latter rounds are not a spectacular, but nevertheless important steps.
+
+During the early rounds, you primarily look at the learning loss and spread to make sure LoRA is working. As the negatives are pushed further away from the positives, a pattern will start to emerge in your retrieval tests. You see a peak cosine threshold where the gap between positive and negative match rates is at its widest. Once you see this pattern, you can use it to guide how you mine your training data.
+
+Eventually your LoRA results will plateau, At that point, you can decide to deploy your custom model or start a new round of training with fresh training data.   
