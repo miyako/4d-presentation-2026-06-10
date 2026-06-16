@@ -1518,7 +1518,6 @@ The computing resources required for training are basically proportional to data
 
 For a document retrieval system, the complete passage may be thousands of tokens long but the query string is typically very short. Training a model using full documents might not improve semantic search quality. It is generally more effective to split the documents into chapters, paragraphs or chunks with a small overlap.
 
-
 ## Post Game Analysis
 
 ### Original BGE M3
@@ -1642,7 +1641,7 @@ SET TEXT TO PASTEBOARD($stats.join("\r"))
 |0.65| `0.44` | `0.06` | `0.38`|
 |0.66| `0.37` | `0.05` | `0.32`|
 	
-- Gap peak: no clear peak
+- Gap peak: `0.58`
 
 ### Round 1 Results
 
