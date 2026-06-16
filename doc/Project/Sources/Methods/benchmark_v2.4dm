@@ -1,8 +1,7 @@
 //%attributes = {}
 var $thresholds : Collection
-//$thresholds:=[0.54; 0.55; 0.56; 0.57]
-$thresholds:=[0.55; 0.56; 0.57; 0.58]
-//$thresholds:=[0.63; 0.64; 0.65; 0.66]
+$thresholds:=[0.54; 0.55; 0.56; 0.57]
+//$thresholds:=[0.58;0.59; 0.6; 0.61]
 var $count : Integer
 $count:=300
 
@@ -53,9 +52,10 @@ original BGE M3
 
 |Threshold|Positive|Negative|Gap|
 |:-:|:-:|:-:|:-:|
-
-|Threshold|Positive|Negative|Gap|
-|:-:|:-:|:-:|:-:|
+|0.55| `0.94` | `0.41` | `0.52`|
+|0.56| `0.91` | `0.38` | `0.53`|
+|0.57| `0.87` | `0.32` | `0.54`|
+|0.58| `0.84` | `0.28` | `0.56`|
 |0.59| `0.81` | `0.26` | `0.55`|
 |0.60| `0.76` | `0.22` | `0.54`|
 |0.61| `0.69` | `0.18` | `0.50`|
@@ -78,8 +78,6 @@ after LoRA r1
 
 after LoRA r2
 
-|Threshold|Positive|Negative|Gap|
-|:-:|:-:|:-:|:-:|
 |Threshold|Positive|Negative|Gap|
 |:-:|:-:|:-:|:-:|
 |0.54| `0.94` | `0.26` | `0.67`|
