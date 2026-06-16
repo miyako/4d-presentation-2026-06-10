@@ -1674,7 +1674,7 @@ The initial drop no longer exists. At this level, **the gains are marginal**.
 
 <img width="500" height="auto" alt="training-loss-3-2" src="https://github.com/user-attachments/assets/35eb5520-4785-4394-b05d-1a8f8225fa42" />
 
-We have essentially entered the realm of **diminishing returns**. LoRA is doing its job, notice the model is not regressing on any of the gaines made earlier, just incremental prositive steps. At this level, the dataset is the primary restricting factor.
+We have essentially entered the realm of **diminishing returns**. LoRA is doing its job, notice the model is not regressing on any of the gains made earlier, just incremental prositive steps. At this level, the dataset is the primary restricting factor.
 
 |Relevance|Min|Max|Average|
 |:-:|-:|-:|-:|
