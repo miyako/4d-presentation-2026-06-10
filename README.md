@@ -1517,3 +1517,196 @@ bash ./setup_and_run.sh
 The computing resources required for training are basically proportional to data size. In this example, every passage is capped at `509` tokens. Jumping to `8192`, the technical ceiling for BGE M3, would be a 16× increase in sequence length, which means up to 256× more memory for the attention computation. Optimisations like flash attention reduce this in practice, but the increase is still dramatic. 
 
 For a document retrieval system, the complete passage may be thousands of tokens long but the query string is typically very short. Training a model using full documents might not improve semantic search quality. It is generally more effective to split the documents into chapters, paragraphs or chunks with a small overlap.
+
+
+## Post Game Analysis
+
+### Original BGE M3
+
+|Relevance|Min|Max|Average|
+|:-:|-:|-:|-:|
+|`3`|`0.33`|`0.83`|`0.63`
+|`2`|`0.28`|`0.81`|`0.60`
+|`1`|`0.31`|`0.82`|`0.57`
+|`0`|`0.21`|`0.69`|`0.43`
+
+- avg. spread: `0.25`
+- lv. 3 vs 2 is separated by `0.03`
+- lv. 3 vs 1 is separated by `0.03`
+- lv. 0 is separated at `0.43`
+ 
+### Round 1 Results
+
+<img width="500" height="auto" alt="training-loss-5" src="https://github.com/user-attachments/assets/2b53f192-ba5c-405e-b56a-8f96c0edf5e9" />
+
+|Relevance|Min|Max|Average|
+|:-:|-:|-:|-:|
+|`3`|`0.42`|`0.89`|`0.67`
+|`2`|`0.23`|`0.85`|`0.63`
+|`1`|`0.27`|`0.83`|`0.58`
+|`0`|`0.05`|`0.70`|`0.31`
+
+- avg. spread: `0.36` (`+0.11`) 👍🏻
+- lv. 3 vs 2 is separated by `0.04` (`+0.01`) 👍🏻
+- lv. 3 vs 1 is separated by `0.05` (`+0.02`) 👍🏻
+- lv. 0 is separated at `0.31` (`-0.09`) 👍🏻
+
+### Round 2 Results
+
+<img width="500" height="auto" alt="training-loss-4" src="https://github.com/user-attachments/assets/ceaedaff-4ff6-4de8-abce-55d2583e6885" />
+
+|Relevance|Min|Max|Average|
+|:-:|-:|-:|-:|
+|`3`| `0.23`|`0.84`|`0.63`
+|`2`| `0.03`|`0.83`|`0.59`
+|`1`| `0.02`|`0.78`|`0.52`
+|`0`|`-0.12`|`0.60`|`0.18`
+
+- avg. spread: `0.45` (`+0.09`) 👍🏻
+- lv. 3 vs 2 is separated by `0.04`
+- lv. 3 vs 1 is separated by `0.05`
+- lv. 0 is separated at `0.31`
+
+The spread between relevant and irrelevant has widened some more. Some of the irrelevant matches now have negative cosine similarities, meaning their vectors are pointing in the opposite direction.
+
+The graph oscillates more than before, but this is expected. The hard negatives will only get harder, so the model will make more mistakes as the training continues. The thing to look out for is whether the learning loss has plateaued. In this case, the model is still learning. 
+
+### Retrieval Test
+
+The learning loss tells how much the model has mutated. It doesn't tell how much the model has improved. To measure actual progress, you need to run queries and compare how many relevant matches are retrieved versus how many irrelevant matches are retrieved.
+
+You can run a few hundred queries at various cosine thresholds to get a taste of where the model is at.
+
+```4d
+var $thresholds : Collection
+$thresholds:=[0.58; 0.59; 0.6; 0.61]
+var $count : Integer
+$count:=300
+
+var $stats : Collection
+$stats:=["|Threshold|Positive|Negative|Gap|"; "|:-:|:-:|:-:|:-:|"]
+
+var $threshold : Real
+For each ($threshold; $thresholds)
+	var $positiveMatch; $negativeMatch : Real
+	$positiveMatch:=0
+	$negativeMatch:=0
+	
+	var $searches : cs.SearchSelection
+	$searches:=ds.Search.query("relevance == :1"; 3).slice(0; $count)
+	var $search : cs.SearchEntity
+	For each ($search; $searches)
+		var $comparison : Object
+		$comparison:={vector: $search.embeddings; metric: mk cosine; threshold: $threshold}
+		var $documents : cs.DocumentSelection
+		$documents:=ds.Document.query("passages.embeddings > :1"; $comparison)
+		If ($documents.passages.and($search.passage).length#0)
+			$positiveMatch+=1
+		End if 
+	End for each 
+	
+	$searches:=ds.Search.query("relevance <= :1"; 1).slice(0; $count)
+	For each ($search; $searches)
+		$comparison:={vector: $search.embeddings; metric: mk cosine; threshold: $threshold}
+		$documents:=ds.Document.query("passages.embeddings > :1"; $comparison)
+		If ($documents.passages.and($search.passage).length#0)
+			$negativeMatch+=1
+		End if 
+	End for each 
+	
+	var $posRate; $negRate; $gap : Real
+	$posRate:=$positiveMatch/$count
+	$negRate:=$negativeMatch/$count
+	$gap:=$posRate-$negRate
+	
+	$stats.push("|"+String($threshold; "#0.00")+"| `"+String($posRate; "#0.00")+"` | `"+String($negRate; "#0.00")+"` | `"+String($gap; "#0.00")+"`|")
+End for each 
+
+SET TEXT TO PASTEBOARD($stats.join("\r"))
+```
+
+|Threshold|Positive|Negative|Gap|
+|:-:|:-:|:-:|:-:|
+|0.58| `0.80` | `0.14` | `0.65`|
+|0.59| `0.76` | `0.10` | `0.66`|
+|0.60| `0.70` | `0.09` | `0.61`|
+|0.61| `0.67` | `0.07` | `0.60`|
+
+These results are also useful for creating the dataset for the next round of LoRA training.
+
+Hard negatives, by definition, are negative that are similar to positives. They exist in spaces where positives are also abundant. 
+
+The number to look out for is the gap between the percentage of positives and negatives. The peak indicates the point where a large number of negatives drop out. Hard negatives exist just a few notches below that threshold. This informs you where to find your next training data.
+
+### Round 3 Results
+
+<img width="500" height="auto" alt="training-loss-2-2" src="https://github.com/user-attachments/assets/83701cbd-c391-4b24-8e54-93326fd665a6" />
+
+The initial drop no longer exists. At this level, **the gains are marginal**. 
+
+|Relevance|Min|Max|Average|
+|:-:|-:|-:|-:|
+|`3`| `0.29`|`0.85`|`0.65`
+|`2`| `0.03`|`0.83`|`0.61`
+|`1`| `0.04`|`0.80`|`0.54`
+|`0`|`-0.11`|`0.63`|`0.20`
+	
+- avg. spread: `0.45`
+- lv. 3 vs 2 is separated by `0.04`
+- lv. 3 vs 1 is separated by `0.11` (`+0.06`) 👍🏻
+- lv. 0 is well separated at `0.20` (`-0.11`) 👍🏻
+
+|Threshold|Positive|Negative|Gap|
+|:-:|:-:|:-:|:-:|
+|0.54| `0.96` | `0.33` | `0.62`|
+|0.55| `0.94` | `0.31` | `0.63`|
+|0.56| `0.92` | `0.27` | `0.64`|
+|0.57| `0.90` | `0.24` | `0.65`|
+|0.58| `0.88` | `0.22` | `0.65`|
+|0.59| `0.85` | `0.18` | `0.67`|
+|0.55| `0.94` | `0.31` | `0.63`|
+|0.60| `0.80` | `0.15` | `0.65`|
+|0.61| `0.73` | `0.12` | `0.60`|
+
+- gap peak: `0.59`
+ 
+### Round 4 Results
+
+<img width="500" height="auto" alt="training-loss-3-2" src="https://github.com/user-attachments/assets/35eb5520-4785-4394-b05d-1a8f8225fa42" />
+
+We have essentially entered the realm of **diminishing returns**. LoRA is doing its job, notice the model is not regressing on any of the gains made earlier, just incremental prositive steps. At this level, the dataset is the primary restricting factor.
+
+|Relevance|Min|Max|Average|
+|:-:|-:|-:|-:|
+|`3`| `0.31`|`0.84`|`0.64`
+|`2`| `0.04`|`0.82`|`0.60`
+|`1`| `0.06`|`0.77`|`0.53`
+|`0`|`-0.11`|`0.61`|`0.19`
+	
+- avg. spread: `0.45`
+- lv. 3 vs 2 is separated by `0.04`
+- lv. 3 vs 1 is separated by `0.11`
+- lv. 0 is well separated at `0.19` (`-0.01`) 👍🏻
+
+|Threshold|Positive|Negative|Gap|
+|:-:|:-:|:-:|:-:|
+|0.54| `0.97` | `0.31` | `0.65`|
+|0.55| `0.95` | `0.29` | `0.65`|
+|0.56| `0.93` | `0.26` | `0.67`|
+|0.57| `0.90` | `0.23` | `0.67`|
+|0.58| `0.88` | `0.18` | `0.69`|
+|0.59| `0.83` | `0.15` | `0.67`|
+|0.60| `0.78` | `0.12` | `0.65`|
+|0.61| `0.74` | `0.09` | `0.64`|
+
+- gap peak: `0.58`
+
+## Conclusion
+
+LoRA is an effective method for fine-tuning an already well adjusted off-the-shelf model like BGE M3. With a well curated dataset of domain-specific examples, the model can learn to separate genuine matches from hard negatives.   
+
+The first 2 rounds of LoRA is where you see the largest movements. It can be likened to golf, you hit the ball with a driver, then switch to irons, finally a putter when you reach the green. The latter rounds are not as spectacular, but nevertheless important steps.
+
+During the early rounds, you primarily look at the learning loss and spread to make sure LoRA is working. As the negatives are pushed further away from the positives, a pattern will start to emerge in your retrieval tests. You see a peak cosine threshold where the gap between positive and negative match rates is at its widest. Once you see this pattern, you can use it to guide how you mine your training data.
+
+Eventually your LoRA results will plateau, At that point, you can decide to deploy your custom model or start a new round of training with fresh training data.   
