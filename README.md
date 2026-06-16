@@ -1642,7 +1642,7 @@ The number to look out for is the gap between the percentage of positives and ne
 
 <img width="500" height="auto" alt="training-loss-2-2" src="https://github.com/user-attachments/assets/83701cbd-c391-4b24-8e54-93326fd665a6" />
 
-The initial drop no longer exists. We are no longer starting with a driver from tee, we are already on the green. At this level, **the gains are marginal**. 
+The initial drop no longer exists. At this level, **the gains are marginal**. 
 
 |Relevance|Min|Max|Average|
 |:-:|-:|-:|-:|
@@ -1705,7 +1705,7 @@ We have essentially entered the realm of **diminishing returns**. LoRA is doing 
 
 LoRA is an effective method for fine-tuning an already well adjusted off-the-shelf model like BGE M3. With a well curated dataset of domain-specific examples, the model can learn to separate genuine matches from hard negatives.   
 
-The first 2 rounds of LoRA is where you see the largest movements. It can be likened to golf, you hit the ball with a driver, then switch to irons, finally a putter when you reach the green. The latter rounds are not a spectacular, but nevertheless important steps.
+The first 2 rounds of LoRA is where you see the largest movements. It can be likened to golf, you hit the ball with a driver, then switch to irons, finally a putter when you reach the green. The latter rounds are not as spectacular, but nevertheless important steps.
 
 During the early rounds, you primarily look at the learning loss and spread to make sure LoRA is working. As the negatives are pushed further away from the positives, a pattern will start to emerge in your retrieval tests. You see a peak cosine threshold where the gap between positive and negative match rates is at its widest. Once you see this pattern, you can use it to guide how you mine your training data.
 
