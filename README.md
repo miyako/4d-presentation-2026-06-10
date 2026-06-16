@@ -1625,12 +1625,48 @@ End for each
 SET TEXT TO PASTEBOARD($stats.join("\r"))
 ```
 
+### Original BGE M3
+
 |Threshold|Positive|Negative|Gap|
 |:-:|:-:|:-:|:-:|
+|0.55| `0.94` | `0.41` | `0.52`|
+|0.56| `0.91` | `0.38` | `0.53`|
+|0.57| `0.87` | `0.32` | `0.54`|
+|0.58| `0.84` | `0.28` | `0.56`|
+|0.59| `0.81` | `0.26` | `0.55`|
+|0.60| `0.76` | `0.22` | `0.54`|
+|0.61| `0.69` | `0.18` | `0.50`|
+|0.62| `0.64` | `0.14` | `0.49`|
+|0.63| `0.60` | `0.11` | `0.49`|
+|0.64| `0.52` | `0.08` | `0.44`|
+|0.65| `0.44` | `0.06` | `0.38`|
+|0.66| `0.37` | `0.05` | `0.32`|
+	
+- Gap peak: no clear peak
+
+### Round 1 Results
+
+|Threshold|Positive|Negative|Gap|
+|:-:|:-:|:-:|:-:|
+|0.58| `0.93` | `0.32` | `0.61`|
+|0.59| `0.92` | `0.28` | `0.63`|
+|0.60| `0.87` | `0.26` | `0.61`|
+|0.61| `0.86` | `0.21` | `0.64`|
+
+### Round 2 Results
+
+|Threshold|Positive|Negative|Gap|
+|:-:|:-:|:-:|:-:|
+|0.54| `0.94` | `0.26` | `0.67`|
+|0.55| `0.91` | `0.24` | `0.66`|
+|0.56| `0.88` | `0.21` | `0.66`|
+|0.57| `0.84` | `0.18` | `0.65`|
 |0.58| `0.80` | `0.14` | `0.65`|
 |0.59| `0.76` | `0.10` | `0.66`|
 |0.60| `0.70` | `0.09` | `0.61`|
 |0.61| `0.67` | `0.07` | `0.60`|
+
+- Gap peak: no clear peak
 
 These results are also useful for creating the dataset for the next round of LoRA training.
 
@@ -1668,7 +1704,7 @@ The initial drop no longer exists. At this level, **the gains are marginal**.
 |0.60| `0.80` | `0.15` | `0.65`|
 |0.61| `0.73` | `0.12` | `0.60`|
 
-- gap peak: `0.59`
+- Gap peak: `0.59`
  
 ### Round 4 Results
 
@@ -1699,7 +1735,7 @@ We have essentially entered the realm of **diminishing returns**. LoRA is doing 
 |0.60| `0.78` | `0.12` | `0.65`|
 |0.61| `0.74` | `0.09` | `0.64`|
 
-- gap peak: `0.58`
+- Gap peak: `0.58`
 
 ## Conclusion
 
