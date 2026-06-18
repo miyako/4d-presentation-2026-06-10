@@ -136,7 +136,7 @@ def main():
         log.info("Loading merged model ...")
 
     model = SentenceTransformer(
-        f"{HF_USER}/bge-m3-doc-{RN}-merged",
+        f"BAAI/bge-m3",
         model_kwargs={"torch_dtype": torch.bfloat16},
     )
 
